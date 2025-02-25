@@ -1,11 +1,16 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+
+bool is_running = false;
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 
-bool is_running = false;
+uint32_t* color_buffer = NULL;
+int window_width = 800;
+int window_height = 600;
 
 bool initialize_window(void){
 	if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
@@ -17,8 +22,8 @@ bool initialize_window(void){
 		NULL,
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		800,
-		600,
+		window_width,
+		window_height,
 		SDL_WINDOW_BORDERLESS);
 
 	if(!window){
@@ -35,7 +40,11 @@ bool initialize_window(void){
 }
 
 void setup(void){
-	//TODO:
+	color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
+	if(!color_buffer){
+		fprintf(stderr, "an error occurred trying to allocate memory");
+		is_running = false;
+	}
 }
 
 void proccess_input(void){
@@ -63,6 +72,13 @@ void render(void){
 	SDL_RenderPresent(renderer); 
 }
 
+void destroy_window(void){
+	free(color_buffer);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
+}
+
 int main(void){
 
 	is_running = initialize_window();
@@ -74,6 +90,8 @@ int main(void){
 		update();
 		render();
 	}
+
+	destroy_window();
 
 	return 0;
 }
