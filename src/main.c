@@ -11,14 +11,22 @@ SDL_Renderer* renderer = NULL;
 SDL_Texture* color_buffer_texture = NULL;
 uint32_t* color_buffer = NULL;
 
-int window_width = 800;
-int window_height = 600;
+int window_width;
+int window_height;
 
 bool initialize_window(void){
+	// initializes SDL
 	if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
 		fprintf(stderr, "Error initializing SDL.\n");
 		return false;
 	}
+
+	// get the max resolution of the current display(monitor)
+	SDL_DisplayMode display_mode;
+	SDL_GetCurrentDisplayMode(0, &display_mode);
+
+	window_width = display_mode.w;
+	window_height = display_mode.h;
 
 	window = SDL_CreateWindow(
 		NULL,
@@ -38,6 +46,8 @@ bool initialize_window(void){
 		fprintf(stderr, "Error initializing SDL renderer.\n");
 		return false;
 	}
+
+	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
 	return true;
 }
