@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include "display.h"
+#include "vectors.h"
+
+#define NUMBER_OF_POINTS (9 * 9 * 9)
+vec3_t cube_points[NUMBER_OF_POINTS];
 
 bool is_running = false;
 
@@ -21,6 +25,16 @@ void setup(void){
 		window_width,
 		window_height
 	);
+
+	int points_count = 0;
+	for(float x = -1; x <= 1; x += 0.25){
+		for(float y = -1; y <= 1; y += 0.25){
+			for(float z = -1; z <= 1; z += 0.25){
+				vec3_t vertex = {.x = x, .y = y, .z = z};
+				cube_points[points_count++] = vertex;
+			}
+		}
+	}
 }
 
 void proccess_input(void){
