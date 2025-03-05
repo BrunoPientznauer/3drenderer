@@ -69,7 +69,7 @@ void render_color_buffer(void)
 
 void draw_pixel(int x, int y, uint32_t color)
 {
-    if(x < window_width && y < window_height){
+    if(x < window_width && y < window_height && x >= 0 && y >= 0){
         color_buffer[window_width * y + x] = color;
     }
 }
@@ -91,7 +91,7 @@ void draw_rect(int x, int y, int width, int height, uint32_t color)
     {
         for (int j = y; j < y + width; j++)
         {
-            draw_pixel(j, i, color);
+            draw_pixel(i, j, color);
         }
     }
 }
