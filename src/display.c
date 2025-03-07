@@ -8,6 +8,8 @@ uint32_t *color_buffer = NULL;
 int window_width;
 int window_height;
 
+int previous_frame = 0;
+
 bool initialize_window(void)
 {
     // initializes SDL
