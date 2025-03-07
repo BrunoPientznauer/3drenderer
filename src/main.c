@@ -15,6 +15,8 @@ float fov_factor = 640;
 
 bool is_running = false;
 
+vec3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
+
 void setup(void)
 {
 	color_buffer = (uint32_t *)malloc(sizeof(uint32_t) * window_width * window_height);
@@ -75,15 +77,23 @@ vec2_t project(vec3_t point)
 
 void update(void)
 {
+	cube_rotation.x += 0.01;
+	cube_rotation.y += 0.01;
+	cube_rotation.z += 0.01;
+
 	for (int i = 0; i < NUMBER_OF_POINTS; i++)
 	{
 		vec3_t point = cube_points[i];
 
-		point.z -= camera_position.z;
+		vec3_t rotated_point = vector_rotate_x(point, cube_rotation.x);
+		rotated_point = vector_rotate_y(rotated_point, cube_rotation.y);
+		rotated_point = vector_rotate_z(rotated_point, cube_rotation.z);
 
-		vec2_t projected_point = project(point);
+		rotated_point.z -= camera_position.z;
 
-		projected_points[i] = projected_point;
+		vec2_t projected_point = project(rotated_point);
+
+		projected_points[i] =  projected_point;
 	}
 }
 
