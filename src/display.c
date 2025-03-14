@@ -105,3 +105,35 @@ void destroy_window(void)
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
+
+void draw_line(int x0, int y0, int x1, int y1, uint32_t color)
+{
+    int delta_x = (x1 - x0);
+    int delta_y = (y1 - y0);
+
+    int side_length = abs(delta_x) >= abs(delta_y) ? abs(delta_x) : abs(delta_y);
+
+    float x_increment = delta_x / (float) side_length;
+    float y_increment = delta_y / (float) side_length;
+
+    float actual_x = x0;
+    float actual_y = y0;
+
+    for(int i = 0; i <= side_length; i++){
+        draw_pixel(round(actual_x), round(actual_y), color);
+        actual_x += x_increment;
+        actual_y += y_increment;
+    }
+}
+
+void draw_line_between_vectors(vec2_t p1, vec2_t p2, uint32_t color)
+{
+    draw_line(p1.x, p1.y, p2.x, p2.y, color);
+}
+
+void draw_triangle(vec2_t v1, vec2_t v2, vec2_t v3, uint32_t color)
+{
+    draw_line_between_vectors(v1, v2, color);
+    draw_line_between_vectors(v2, v3, color);
+    draw_line_between_vectors(v3, v1, color);
+}
