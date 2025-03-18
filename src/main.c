@@ -5,8 +5,10 @@
 #include "display.h"
 #include "vectors.h"
 #include "mesh.h"
+#include "array.h"
 
-triangle_t triangles_to_render[N_MESH_FACES];
+// define an array of triangles to be rendered on screen
+triangle_t* triangles_to_render = NULL;
 
 vec3_t camera_position = {.x = 0, .y = 0, .z = -5};
 float fov_factor = 640;
@@ -20,7 +22,7 @@ vec2_t projected_points[N_MESH_FACES * 3];
 void setup(void)
 {
 	color_buffer = (uint32_t *)malloc(sizeof(uint32_t) * window_width * window_height);
-
+ 
 	if (!color_buffer)
 	{
 		fprintf(stderr, "an error occurred trying to allocate memory");
@@ -73,10 +75,15 @@ void update(void)
 
 	previous_frame = SDL_GetTicks();
 	
+	// initializes the array of triangles to render
+	triangles_to_render = NULL;
+
+	// add rotation on every axis of the cube
 	cube_rotation.x += 0.01;
 	cube_rotation.y += 0.01;
 	cube_rotation.z += 0.01;
 
+	// loop all the faces of the cube
 	for(int i = 0; i < N_MESH_FACES; i++){
 		face_t face = mesh_faces[i];
 		
@@ -102,30 +109,16 @@ void update(void)
 			projected_triangle.points[j] = projected_vertex;
 		}
 
-		triangles_to_render[i] = projected_triangle;
+		array_push(triangles_to_render, projected_triangle);
 	}
-
-	// for (int i = 0; i < NUMBER_OF_POINTS; i++)
-	// {
-	// 	vec3_t point = cube_points[i];
-
-	// 	vec3_t rotated_point = vector_rotate_x(point, cube_rotation.x);
-	// 	rotated_point = vector_rotate_y(rotated_point, cube_rotation.y);
-	// 	rotated_point = vector_rotate_z(rotated_point, cube_rotation.z);
-
-	// 	rotated_point.z -= camera_position.z;
-
-	// 	vec2_t projected_point = project(rotated_point);
-
-	// 	projected_points[i] =  projected_point;
-	// }
 }
 
 void render(void)
 {
 	draw_grid(10);
 
-	for (int i = 0; i < N_MESH_FACES; i++)
+	int num_triangles = array_length(triangles_to_render);
+	for (int i = 0; i < num_triangles; i++)
 	{
 		triangle_t triangle = triangles_to_render[i];
 		draw_rect(triangle.points[0].x, triangle.points[0].y, 4, 4, 0xFFFF0000);
@@ -134,6 +127,9 @@ void render(void)
 
 		draw_triangle(triangle.points[0], triangle.points[1], triangle.points[2], 0xFF00FF00);
 	}
+
+	// clear the array of triangles to render
+	array_free(triangles_to_render);
 
 	render_color_buffer();
 	clear_color_buffer(0x00000000);
