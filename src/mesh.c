@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "array.h"
 #include "mesh.h"
 
@@ -51,4 +53,59 @@ void load_cube_mesh_data(void){
         face_t face = mesh_faces[i];
         array_push(mesh.faces, face);
     }
+}
+
+void load_obj_mesh_data(char* filename){
+
+    FILE *file = fopen(filename, "r");
+
+    if(file == NULL){
+        printf("file is null\n");
+        fclose(file);
+        return;
+    }
+
+    char line[100];
+    while(fgets(line, 100, file)){
+        // gets the prefix of the line
+        char* token = strtok(line, "  ");
+
+        // enters if the prefix correspond to a vertex
+        if(strcmp(token, "v") == 0){
+            float vertices[3];
+
+            int i = 0;
+            while (token != NULL)
+            {
+                token = strtok(NULL, "  ");
+
+                if(token != NULL){
+                   vertices[i++] = atof(token);
+                }
+            }
+
+            vec3_t vertex = {vertices[0], vertices[1], vertices[2]};
+            array_push(mesh.vertices, vertex);
+
+            // printf("{%f, %f, %f}\n", vertex.x, vertex.y, vertex.z);
+        }else if(strcmp(token, "f") == 0){
+            int faces[3];
+            
+            int i = 0;
+            while(token != NULL){
+                token = strtok(NULL, " ");
+                
+                if(token != NULL){
+                    faces[i++] = atoi(&token[0]);
+                }
+            }
+
+            face_t face = {faces[0], faces[1], faces[2]};
+            array_push(mesh.faces, face);
+
+            // printf("{%d, %d, %d}\n", face.a, face.b, face.c);
+        }
+    }
+
+    fclose(file);
 }

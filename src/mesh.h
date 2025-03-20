@@ -29,4 +29,10 @@ extern mesh_t mesh;
  */
 void load_cube_mesh_data(void);
 
+/**
+ * loads an external obj file
+ * \param filename the path of the file to be loaded
+ */
+void load_obj_mesh_data(char* filename);
+
 #endif

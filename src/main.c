@@ -24,7 +24,7 @@ void setup(void)
  
 	if (!color_buffer)
 	{
-		fprintf(stderr, "an error occurred trying to allocate memory");
+		fprintf(stderr, "an error occurred trying to allocate memory\n");
 		is_running = false;
 	}
 
@@ -35,7 +35,8 @@ void setup(void)
 		window_width,
 		window_height);
 
-	load_cube_mesh_data();
+	// load_cube_mesh_data();
+	load_obj_mesh_data("./assets/f22.obj");
 }
 
 void proccess_input(void)
@@ -84,9 +85,9 @@ void update(void)
 	triangles_to_render = NULL;
 
 	// add rotation on every axis of the cube
-	mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.01;
-	mesh.rotation.z += 0.01;
+	mesh.rotation.x += 0.001;
+	mesh.rotation.y += 0.001;
+	mesh.rotation.z += 0.001;
 
 	int num_faces = array_length(mesh.faces);
 
