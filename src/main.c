@@ -85,9 +85,9 @@ void update(void)
 	triangles_to_render = NULL;
 
 	// add rotation on every axis of the cube
-	mesh.rotation.x += 0.001;
-	mesh.rotation.y += 0.001;
-	mesh.rotation.z += 0.001;
+	mesh.rotation.x += 0.01;
+	mesh.rotation.y += 0.0;
+	mesh.rotation.z += 0.0;
 
 	int num_faces = array_length(mesh.faces);
 
@@ -129,9 +129,9 @@ void render(void)
 	for (int i = 0; i < num_triangles; i++)
 	{
 		triangle_t triangle = triangles_to_render[i];
-		draw_rect(triangle.points[0].x, triangle.points[0].y, 4, 4, 0xFFFF0000);
-		draw_rect(triangle.points[1].x, triangle.points[1].y, 4, 4, 0xFFFF0000);
-		draw_rect(triangle.points[2].x, triangle.points[2].y, 4, 4, 0xFFFF0000);
+		draw_rect(triangle.points[0].x, triangle.points[0].y, 4, 4, 0xFFFFFF00);
+		draw_rect(triangle.points[1].x, triangle.points[1].y, 4, 4, 0xFFFFFF00);
+		draw_rect(triangle.points[2].x, triangle.points[2].y, 4, 4, 0xFFFFFF00);
 
 		draw_triangle(triangle.points[0], triangle.points[1], triangle.points[2], 0xFF00FF00);
 	}

@@ -65,45 +65,32 @@ void load_obj_mesh_data(char* filename){
         return;
     }
 
-    char line[100];
-    while(fgets(line, 100, file)){
-        // gets the prefix of the line
-        char* token = strtok(line, "  ");
-
-        // enters if the prefix correspond to a vertex
-        if(strcmp(token, "v") == 0){
-            float vertices[3];
-
-            int i = 0;
-            while (token != NULL)
-            {
-                token = strtok(NULL, "  ");
-
-                if(token != NULL){
-                   vertices[i++] = atof(token);
-                }
-            }
-
-            vec3_t vertex = {vertices[0], vertices[1], vertices[2]};
+    char line[1024];
+    while(fgets(line, 1024, file)){
+        // Vertices information
+        if(strncmp(line, "v ", 2) == 0){
+            vec3_t vertex;
+            sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
             array_push(mesh.vertices, vertex);
-
-            // printf("{%f, %f, %f}\n", vertex.x, vertex.y, vertex.z);
-        }else if(strcmp(token, "f") == 0){
-            int faces[3];
+        }
+        
+        // Faces information
+        if(strncmp(line, "f ", 2) == 0){
+            int vertex_indices[3];
+            int textures_indices[3];
+            int normals_indices[3];
             
-            int i = 0;
-            while(token != NULL){
-                token = strtok(NULL, " ");
-                
-                if(token != NULL){
-                    faces[i++] = atoi(&token[0]);
-                }
-            }
+            sscanf(
+                line, "f %d/%d/%d %d/%d/%d %d/%d/%d", 
+                &vertex_indices[0], &textures_indices[0], &normals_indices[0],
+                &vertex_indices[1], &textures_indices[1], &normals_indices[1],
+                &vertex_indices[2], &textures_indices[2], &normals_indices[2]
+            );
 
-            face_t face = {faces[0], faces[1], faces[2]};
+            face_t face = {vertex_indices[0], vertex_indices[1], vertex_indices[2]};
             array_push(mesh.faces, face);
 
-            // printf("{%d, %d, %d}\n", face.a, face.b, face.c);
+            // printf("{%d, %d ,%d}\n", face.a, face.b, face.c);
         }
     }
 
