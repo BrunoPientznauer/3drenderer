@@ -28,6 +28,9 @@ vec2_t vec2_mul(vec2_t v, float factor);
 /** returns the resultant vector of an division operation between a vector and a scalar factor */
 vec2_t vec2_div(vec2_t v, float factor);
 
+/** returns the resultant scalar value of a dot product operation between two vectors */
+float vec2_dot(vec3_t v1, vec3_t v2);
+
 /* Vector 3D functions*/
 
 /**  returns the maginute of a 3 dimensional vector */
@@ -44,6 +47,12 @@ vec3_t vec3_mul(vec3_t v, float factor);
 
 /** returns the resultant vector of an division operation between a vector and a scalar factor */
 vec3_t vec3_div(vec3_t v, float factor);
+
+/** returns the resultant vector of a cross product operation between two vectors */
+vec3_t vec3_cross(vec3_t v1, vec3_t v2);
+
+/** returns the resultant scalar value of a dot product operation between two vectors */
+float vec3_dot(vec3_t v1, vec3_t v2);
 
 vec3_t vector_rotate_x(vec3_t vec, float angle);
 vec3_t vector_rotate_y(vec3_t vec, float angle);
