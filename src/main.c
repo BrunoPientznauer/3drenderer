@@ -10,7 +10,7 @@
 // define an array of triangles to be rendered on screen
 triangle_t* triangles_to_render = NULL;
 
-vec3_t camera_position = {.x = 0, .y = 0, .z = -5};
+vec3_t camera_position = {0, 0, 0};
 float fov_factor = 640;
 
 bool is_running = false;
@@ -36,7 +36,7 @@ void setup(void)
 		window_height);
 
 	// load_cube_mesh_data();
-	load_obj_mesh_data("./assets/f22.obj");
+	load_obj_mesh_data("./assets/cube.obj");
 }
 
 void proccess_input(void)
@@ -86,7 +86,7 @@ void update(void)
 
 	// add rotation on every axis of the cube
 	mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.0;
+	mesh.rotation.y += 0.01;
 	mesh.rotation.z += 0.0;
 
 	int num_faces = array_length(mesh.faces);
@@ -100,16 +100,51 @@ void update(void)
 		face_vertices[1] = mesh.vertices[face.b - 1];
 		face_vertices[2] = mesh.vertices[face.c - 1];
 
-		triangle_t projected_triangle;
+
+		vec3_t transformed_vertices[3];
+		
+		//loops all the vertices in this face and transform them
 		for(int j = 0; j < 3; j++){
 			vec3_t transformed_vertex = face_vertices[j];
 			transformed_vertex = vector_rotate_x(transformed_vertex, mesh.rotation.x);
 			transformed_vertex = vector_rotate_y(transformed_vertex, mesh.rotation.y);
 			transformed_vertex = vector_rotate_z(transformed_vertex, mesh.rotation.z);
+			
+			transformed_vertex.z += 5;
+			
+			transformed_vertices[j] = transformed_vertex;
+		}
+		
+		
+		// performs back face culling
+		vec3_t vector_a = transformed_vertices[0];
+		vec3_t vector_b = transformed_vertices[1];
+		vec3_t vector_c = transformed_vertices[2];
 
-			transformed_vertex.z -= camera_position.z;
+		// gets the vectors of the subtractions B-A and C-A
+		vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+		vec3_t vector_ac = vec3_sub(vector_c, vector_a);
 
-			vec2_t projected_vertex = project(transformed_vertex);
+		// gets the normal vector of the face by performing the cross product of the vectors between the vertices B and C to A.
+		vec3_t face_normal = vec3_cross(vector_ab, vector_ac);
+
+		// gets the vector of the distance between the camera position and the vertice a of the face
+		vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+
+		// gets the dot product between the vector of the distance between camera position and the a vertice and the face normal vector 
+		float camera_dot_normal = vec3_dot(camera_ray, face_normal);
+
+		if(camera_dot_normal < 0) {
+			continue;
+		}
+
+
+		triangle_t projected_triangle;
+
+		//apply the projection for every vertex in this face
+		for(int j = 0; j < 3; j++){
+
+			vec2_t projected_vertex = project(transformed_vertices[j]);
 
 			projected_vertex.x += (window_width / 2);
 			projected_vertex.y += (window_height / 2);

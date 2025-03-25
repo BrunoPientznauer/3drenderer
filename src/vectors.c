@@ -70,12 +70,12 @@ vec3_t vec3_add(vec3_t v1, vec3_t v2)
     return result;
 }
 
-vec3_t vec3_sub(vec3_t v1, vec3_t v2)
+vec3_t vec3_sub(vec3_t a, vec3_t b)
 {
     vec3_t result = {
-        .x = v1.x - v2.x,
-        .y = v1.y - v1.y,
-        .z = v1.z - v2.z
+        .x = a.x - b.x,
+        .y = a.y - b.y,
+        .z = a.z - b.z
     };
 
     return result;
@@ -103,20 +103,17 @@ vec3_t vec3_div(vec3_t v, float factor)
     return result;
 }
 
-vec3_t vec3_cross(vec3_t v1, vec3_t v2)
-{
+vec3_t vec3_cross(vec3_t a, vec3_t b) {
     vec3_t result = {
-        .x = v1.y * v2.z - v1.z * v2.y,
-        .y = v1.x * v2.z - v1.z * v2.x,
-        .z = v1.x * v2.y - v1.y * v2.x
+        .x = a.y * b.z - a.z * b.y,
+        .y = a.z * b.x - a.x * b.z,
+        .z = a.x * b.y - a.y * b.x
     };
-
     return result;
 }
 
-float vec3_dot(vec3_t v1, vec3_t v2)
-{
-    return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+float vec3_dot(vec3_t a, vec3_t b) {
+    return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
 vec3_t vector_rotate_x(vec3_t vec, float angle)
