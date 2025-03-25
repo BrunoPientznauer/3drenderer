@@ -36,7 +36,7 @@ void setup(void)
 		window_height);
 
 	// load_cube_mesh_data();
-	load_obj_mesh_data("./assets/cube.obj");
+	load_obj_mesh_data("./assets/f22.obj");
 }
 
 void proccess_input(void)
@@ -127,6 +127,9 @@ void update(void)
 
 		// gets the normal vector of the face by performing the cross product of the vectors between the vertices B and C to A.
 		vec3_t face_normal = vec3_cross(vector_ab, vector_ac);
+
+		// normalize the face normal vector
+		vec3_normalize(&face_normal);
 
 		// gets the vector of the distance between the camera position and the vertice a of the face
 		vec3_t camera_ray = vec3_sub(camera_position, vector_a);

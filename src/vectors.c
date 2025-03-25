@@ -8,21 +8,21 @@ float vec2_length(vec2_t v)
     return sqrt((v.x * v.x) + (v.y * v.y));
 }
 
-vec2_t vec2_add(vec2_t v1, vec2_t v2)
+vec2_t vec2_add(vec2_t a, vec2_t b)
 {
     vec2_t result = {
-        .x = v1.x + v2.x,
-        .y = v1.y + v1.y
+        .x = a.x + b.x,
+        .y = a.y + a.y
     };
 
     return result;
 }
 
-vec2_t vec2_sub(vec2_t v1, vec2_t v2)
+vec2_t vec2_sub(vec2_t a, vec2_t b)
 {
     vec2_t result = {
-        .x = v1.x - v2.x,
-        .y = v1.y - v1.y
+        .x = a.x - b.x,
+        .y = a.y - a.y
     };
 
     return result;
@@ -47,9 +47,16 @@ vec2_t vec2_div(vec2_t v, float factor)
 
     return result;}
 
-float vec2_dot(vec3_t v1, vec3_t v2)
+float vec2_dot(vec3_t a, vec3_t b)
 {
-    return (v1.x * v2.x) + (v1.y * v2.y);
+    return (a.x * b.x) + (a.y * b.y);
+}
+
+void vec2_normalize(vec2_t* v)
+{
+    float magnitude = vec2_length(*v);
+    v->x /= magnitude;
+    v->y /= magnitude;
 }
 
 /* Vec 3D functions */
@@ -59,12 +66,12 @@ float vec3_length(vec3_t v)
     return sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
 }
 
-vec3_t vec3_add(vec3_t v1, vec3_t v2)
+vec3_t vec3_add(vec3_t a, vec3_t b)
 {
     vec3_t result = {
-        .x = v1.x + v2.x,
-        .y = v1.y + v1.y,
-        .z = v1.z + v2.z
+        .x = a.x + b.x,
+        .y = a.y + a.y,
+        .z = a.z + b.z
     };
 
     return result;
@@ -114,6 +121,14 @@ vec3_t vec3_cross(vec3_t a, vec3_t b) {
 
 float vec3_dot(vec3_t a, vec3_t b) {
     return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+}
+
+void vec3_normalize(vec3_t* v)
+{
+    float magnitude = vec3_length(*v);
+    v->x /= magnitude;
+    v->y /= magnitude;
+    v->z /= magnitude;
 }
 
 vec3_t vector_rotate_x(vec3_t vec, float angle)
