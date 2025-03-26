@@ -124,6 +124,8 @@ void update(void)
 		// gets the vectors of the subtractions B-A and C-A
 		vec3_t vector_ab = vec3_sub(vector_b, vector_a);
 		vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+		vec3_normalize(&vector_ab);
+		vec3_normalize(&vector_ac);
 
 		// gets the normal vector of the face by performing the cross product of the vectors between the vertices B and C to A.
 		vec3_t face_normal = vec3_cross(vector_ab, vector_ac);
@@ -163,16 +165,21 @@ void render(void)
 {
 	draw_grid(10);
 
-	int num_triangles = array_length(triangles_to_render);
-	for (int i = 0; i < num_triangles; i++)
-	{
-		triangle_t triangle = triangles_to_render[i];
-		draw_rect(triangle.points[0].x, triangle.points[0].y, 4, 4, 0xFFFFFF00);
-		draw_rect(triangle.points[1].x, triangle.points[1].y, 4, 4, 0xFFFFFF00);
-		draw_rect(triangle.points[2].x, triangle.points[2].y, 4, 4, 0xFFFFFF00);
+	// int num_triangles = array_length(triangles_to_render);
+	// for (int i = 0; i < num_triangles; i++)
+	// {
+	// 	triangle_t triangle = triangles_to_render[i];
+	// 	draw_rect(triangle.points[0].x, triangle.points[0].y, 4, 4, 0xFFFFFF00);
+	// 	draw_rect(triangle.points[1].x, triangle.points[1].y, 4, 4, 0xFFFFFF00);
+	// 	draw_rect(triangle.points[2].x, triangle.points[2].y, 4, 4, 0xFFFFFF00);
 
-		draw_triangle(triangle.points[0], triangle.points[1], triangle.points[2], 0xFF00FF00);
-	}
+	// 	draw_triangle(triangle.points[0], triangle.points[1], triangle.points[2], 0xFF00FF00);
+	// }
+
+	vec2_t v1 = {300, 100};
+	vec2_t v2 = {50, 400};
+	vec2_t v3 = {500, 700};
+	draw_filled_triangle(300, 100, 50, 400, 500, 700, 0xFF00FF00);
 
 	// clear the array of triangles to render
 	array_free(triangles_to_render);

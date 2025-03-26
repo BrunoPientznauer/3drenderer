@@ -1,4 +1,5 @@
 #include "display.h"
+#include "array.h"
 
 
 SDL_Window *window = NULL;
