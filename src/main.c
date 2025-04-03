@@ -17,10 +17,20 @@ bool is_running = false;
 
 vec2_t projected_points[N_CUBE_FACES * 3];
 
-bool is_back_face_culling_enabled = true;
-bool is_wireframe_enabled = true;
-bool is_solid_objects_enabled = true;
-bool is_vertex_display_enabled = true;
+
+enum cull_method{
+    CULL_NONE,
+    CULL_BACKFACE
+}cull_method;
+
+enum render_method{
+    RENDER_WIRE,
+    RENDER_WIRE_VERTEX,
+    RENDER_FILL_TRIANGLE,
+    RENDER_FILL_TRIANGLE_WIRE
+}render_method;
+
+
 
 void setup(void)
 {
@@ -59,37 +69,18 @@ void proccess_input(void)
 			is_running = false;
 		}
 
-		if(event.key.keysym.sym == SDLK_1){
-			is_wireframe_enabled = true;
-			is_solid_objects_enabled = false;
-			is_vertex_display_enabled = true;
-		}
-
-		if(event.key.keysym.sym == SDLK_2){
-			is_wireframe_enabled = true;
-			is_solid_objects_enabled = false;
-			is_vertex_display_enabled = false;
-		}
-
-		if(event.key.keysym.sym == SDLK_3){
-			is_wireframe_enabled = false;
-			is_solid_objects_enabled = true;
-			is_vertex_display_enabled = false;
-		}
-
-		if(event.key.keysym.sym == SDLK_4){
-			is_wireframe_enabled = true;
-			is_solid_objects_enabled = true;
-			is_vertex_display_enabled = false;
-		}
-
-		if(event.key.keysym.sym == SDLK_c){
-			is_back_face_culling_enabled = true;
-		}
-
-		if(event.key.keysym.sym == SDLK_d){
-			is_back_face_culling_enabled = false;
-		}
+		if(event.key.keysym.sym == SDLK_1)
+			render_method = RENDER_WIRE;
+		if(event.key.keysym.sym == SDLK_2)
+			render_method = RENDER_WIRE_VERTEX;
+		if(event.key.keysym.sym == SDLK_3)
+			render_method = RENDER_FILL_TRIANGLE;
+		if(event.key.keysym.sym == SDLK_4)
+			render_method = RENDER_FILL_TRIANGLE_WIRE;
+		if(event.key.keysym.sym == SDLK_c)
+			cull_method = CULL_BACKFACE;
+		if(event.key.keysym.sym == SDLK_d)
+			cull_method = CULL_NONE;
 
 		break;
 	}
@@ -126,7 +117,7 @@ void update(void)
 	// add rotation on every axis of the cube
 	mesh.rotation.x += 0.01;
 	mesh.rotation.y += 0.01;
-	mesh.rotation.z += 0.0;
+	mesh.rotation.z += 0.01;
 
 	int num_faces = array_length(mesh.faces);
 
@@ -156,7 +147,7 @@ void update(void)
 		}
 
 		// performs back face culling
-		if (is_back_face_culling_enabled)
+		if (cull_method == CULL_BACKFACE)
 		{
 			vec3_t vector_a = transformed_vertices[0];
 			vec3_t vector_b = transformed_vertices[1];
@@ -213,23 +204,23 @@ void render(void)
 	{
 		triangle_t triangle = triangles_to_render[i];
 
-		if(is_vertex_display_enabled){
+		if(render_method == RENDER_WIRE_VERTEX ){
 			draw_rect(triangle.points[0].x, triangle.points[0].y, 4, 4, 0xFFFF0000);
 			draw_rect(triangle.points[1].x, triangle.points[1].y, 4, 4, 0xFFFF0000);
 			draw_rect(triangle.points[2].x, triangle.points[2].y, 4, 4, 0xFFFF0000);
 		}
 
-		if(is_wireframe_enabled){
-			// draw the wireframe of the triangle
-			draw_triangle(triangle.points[0], triangle.points[1], triangle.points[2], 0xFF551111);
-		}
-
-		if(is_solid_objects_enabled){
+		if(render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_FILL_TRIANGLE){
 			draw_filled_triangle(
 				triangle.points[0].x, triangle.points[0].y, // vertex A
 				triangle.points[1].x, triangle.points[1].y, // vertex B
 				triangle.points[2].x, triangle.points[2].y, // vertex C
 				0xFFFFFFFF);
+		}
+
+		if(render_method == RENDER_WIRE_VERTEX || render_method == RENDER_WIRE || render_method == RENDER_FILL_TRIANGLE_WIRE){
+			// draw the wireframe of the triangle
+			draw_triangle(triangle.points[0], triangle.points[1], triangle.points[2], 0xFF551111);
 		}
 	}
 
