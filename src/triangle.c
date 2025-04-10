@@ -1,5 +1,6 @@
 #include "triangle.h"
 #include "display.h"
+#include "array.h"
 
 void int_swap(int *a, int *b)
 {
@@ -78,5 +79,22 @@ void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32
         fill_flat_bottom_triangle(x0, y0, x1, y1, mx, my, color);
 
         fill_flat_top_triangle(x1, y1, mx, my, x2, y2, color);
+    }
+}
+
+void array_bubble_sort(triangle_t* array){
+    int size = array_length(array);
+
+    for(int i = 0; i < size; i++){
+        for(int j = 0; j < size - i; j++){
+            triangle_t actual_triangle = array[j];
+            triangle_t next_triangle = array[j+1];
+
+            if(actual_triangle.avg_depht < next_triangle.avg_depht){
+                triangle_t temp = next_triangle;
+                array[j+1] = actual_triangle;
+                array[j] = temp;
+            }
+        }
     }
 }

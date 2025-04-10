@@ -189,17 +189,21 @@ void update(void)
 			projected_vertex[j].y += (window_height / 2);
 		}
 
+		// calculate the average z position of the vertice.
+		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
+
 		triangle_t projected_triangle = {
 			.points = {
 				{ projected_vertex[0].x, projected_vertex[0].y },
 				{ projected_vertex[1].x, projected_vertex[1].y },
 				{ projected_vertex[2].x, projected_vertex[2].y }
 			},
-			.color = face.color
+			.color = face.color,
+			.avg_depht = avg_depth
 		};
-
 		array_push(triangles_to_render, projected_triangle);
 	}
+	array_bubble_sort(triangles_to_render);
 }
 
 void render(void)
