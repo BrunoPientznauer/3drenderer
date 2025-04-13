@@ -1,0 +1,36 @@
+#include "matrix.h"
+
+mat4_t mat4_identity(void)
+{
+    mat4_t m = {{
+        {1, 0, 0, 0},
+        {0, 1, 0, 0},
+        {0, 0, 1, 0},
+        {0, 0, 0, 1}
+    }};
+
+    return m;
+}
+
+mat4_t mat4_make_scale(float sx, float sy, float sz)
+{
+    mat4_t scale_matrix = mat4_identity();
+
+    scale_matrix.m[0][0] = sx;
+    scale_matrix.m[1][1] = sy;
+    scale_matrix.m[2][2] = sz;
+
+    return scale_matrix;
+}
+
+vec4_t mat4_mul_vec4(mat4_t scale_matrix, vec4_t vec)
+{
+    vec4_t result;
+
+    result.x  = (scale_matrix.m[0][0] * vec.x) + (scale_matrix.m[0][1] * vec.y) + (scale_matrix.m[0][2] * vec.z) + (scale_matrix.m[0][3] * vec.w);
+    result.y  = (scale_matrix.m[1][0] * vec.x) + (scale_matrix.m[1][1] * vec.y) + (scale_matrix.m[1][2] * vec.z) + (scale_matrix.m[1][3] * vec.w);
+    result.z  = (scale_matrix.m[2][0] * vec.x) + (scale_matrix.m[2][1] * vec.y) + (scale_matrix.m[2][2] * vec.z) + (scale_matrix.m[2][3] * vec.w);
+    result.w  = (scale_matrix.m[3][0] * vec.x) + (scale_matrix.m[3][1] * vec.y) + (scale_matrix.m[3][2] * vec.z) + (scale_matrix.m[3][3] * vec.w);
+
+    return result;
+}

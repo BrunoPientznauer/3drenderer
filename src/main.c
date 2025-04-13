@@ -6,6 +6,7 @@
 #include "vectors.h"
 #include "mesh.h"
 #include "array.h"
+#include "matrix.h"
 
 // define an array of triangles to be rendered on screen
 triangle_t *triangles_to_render = NULL;
@@ -119,6 +120,12 @@ void update(void)
 	mesh.rotation.y += 0.01;
 	mesh.rotation.z += 0.01;
 
+	// increases the scale of the mesh in every frame
+	mesh.scale.x += 0.002;
+
+	// create scale matrix to mutiply the mesh vertices
+	mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
+
 	int num_faces = array_length(mesh.faces);
 
 	// loop all the faces of the cube
@@ -131,15 +138,15 @@ void update(void)
 		face_vertices[1] = mesh.vertices[face.b - 1];
 		face_vertices[2] = mesh.vertices[face.c - 1];
 
-		vec3_t transformed_vertices[3];
+		vec4_t transformed_vertices[3];
 
 		// loops all the vertices in this face and transform them
 		for (int j = 0; j < 3; j++)
 		{
-			vec3_t transformed_vertex = face_vertices[j];
-			transformed_vertex = vector_rotate_x(transformed_vertex, mesh.rotation.x);
-			transformed_vertex = vector_rotate_y(transformed_vertex, mesh.rotation.y);
-			transformed_vertex = vector_rotate_z(transformed_vertex, mesh.rotation.z);
+			vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
+
+			// use the scale matrix to scale the vertex.
+			transformed_vertex = mat4_mul_vec4(scale_matrix, transformed_vertex);
 
 			transformed_vertex.z += 5;
 
@@ -149,9 +156,9 @@ void update(void)
 		// performs back face culling
 		if (cull_method == CULL_BACKFACE)
 		{
-			vec3_t vector_a = transformed_vertices[0];
-			vec3_t vector_b = transformed_vertices[1];
-			vec3_t vector_c = transformed_vertices[2];
+			vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);
+			vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);
+			vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);
 
 			// gets the vectors of the subtractions B-A and C-A
 			vec3_t vector_ab = vec3_sub(vector_b, vector_a);
@@ -183,7 +190,7 @@ void update(void)
 		for (int j = 0; j < 3; j++)
 		{
 
-			projected_vertex[j] = project(transformed_vertices[j]);
+			projected_vertex[j] = project(vec3_from_vec4(transformed_vertices[j]));
 
 			projected_vertex[j].x += (window_width / 2);
 			projected_vertex[j].y += (window_height / 2);
@@ -203,6 +210,7 @@ void update(void)
 		};
 		array_push(triangles_to_render, projected_triangle);
 	}
+
 	array_bubble_sort(triangles_to_render);
 }
 

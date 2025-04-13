@@ -16,10 +16,18 @@ extern face_t mesh_faces[N_CUBE_FACES];
 typedef struct{
     /** array of vertices */
     vec3_t* vertices;
+    
     /** array of faces */
     face_t* faces;
-    /** rotation of the object */
+
+    /** rotation of the object  with x, y and z values*/
     vec3_t rotation;
+
+    /** the scale of the object  with x, y and z values*/
+    vec3_t scale;
+
+    /** the translation of the object with x, y and z values */
+    vec3_t translation;
 }mesh_t;
 
 extern mesh_t mesh;

@@ -11,7 +11,14 @@ typedef struct{
     float x, y, z;
 } vec3_t;
 
-/* Vector 2D functions*/
+typedef struct{
+    float x , y, z, w;
+}vec4_t;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Vector 2 Functions
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /** returns the magnitude of a 2 dimensional vector */
 float vec2_length(vec2_t v);
@@ -34,7 +41,9 @@ float vec2_dot(vec3_t a, vec3_t b);
 /** normalize the vector passed as parameter so it has a magnitude of 1 */
 void vec2_normalize(vec2_t* v);
 
-/* Vector 3D functions*/
+////////////////////////////////////////////////////////////////////////////////////////////
+// Vector 3 Functions
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /**  returns the maginute of a 3 dimensional vector */
 float vec3_length(vec3_t v);  
@@ -63,5 +72,15 @@ void vec3_normalize(vec3_t* v);
 vec3_t vector_rotate_x(vec3_t vec, float angle);
 vec3_t vector_rotate_y(vec3_t vec, float angle);
 vec3_t vector_rotate_z(vec3_t vec, float angle);
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Vector convertion functions
+////////////////////////////////////////////////////////////////////////////////////////////
+
+/** creates a vec4 based on a vec3 */
+vec4_t vec4_from_vec3(vec3_t vec3);
+
+/** creates a vec3 based on a vec4 */
+vec3_t vec3_from_vec4(vec4_t vec4);
 
 #endif
