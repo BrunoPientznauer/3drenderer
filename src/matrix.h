@@ -92,4 +92,7 @@ mat4_t mat4_make_rotation_y(float angle);
  */
 vec4_t mat4_mul_vec4(mat4_t mat, vec4_t vec);
 
+/** Multiply a 4X4 matrix by another 4X4 matrix. */
+mat4_t mat4_mul_mat4(mat4_t m1, mat4_t m2);
+
 #endif

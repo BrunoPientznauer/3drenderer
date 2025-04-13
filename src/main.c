@@ -121,7 +121,7 @@ void update(void)
 	mesh.rotation.z += 0.01;
 
 	// increases the scale of the mesh in every frame
-	// mesh.scale.x += 0.002;
+	mesh.scale.x += 0.002;
 
 	// Increases the translation every frame
 	mesh.translation.x += 0.01;
@@ -159,16 +159,22 @@ void update(void)
 
 			vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 
-			// use the scale matrix to scale the vertex.
-			transformed_vertex = mat4_mul_vec4(scale_matrix, transformed_vertex);
+			// Create a world matrix to combine all transformations in a single matrix and multiply the vertex by it.
+			mat4_t world_matrix = mat4_identity();
 
-			// use the rotation matrices to mutiply the vertex and rotate the object.
-			transformed_vertex = mat4_mul_vec4(rotation_matrix_x, transformed_vertex);
-			transformed_vertex = mat4_mul_vec4(rotation_matrix_z, transformed_vertex);
-			transformed_vertex = mat4_mul_vec4(rotation_matrix_y, transformed_vertex);
+			// multiply by the scale matrix.
+			world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
 
-			// use the translation matrix to move the vertex.
-			transformed_vertex = mat4_mul_vec4(translation_matrix, transformed_vertex);
+			// multiply by the rotation matrices.
+			world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
+			world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
+			world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
+
+			// multiply by the translation matrix.
+			world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
+
+			// Use the translation matrix to move the vertex.
+			transformed_vertex = mat4_mul_vec4(world_matrix, transformed_vertex);
 
 			transformed_vertices[j] = transformed_vertex;
 		}
@@ -237,7 +243,7 @@ void update(void)
 void render(void)
 {
 	SDL_RenderClear(renderer);
-	
+
 	draw_grid(10);
 
 	int num_triangles = array_length(triangles_to_render);
