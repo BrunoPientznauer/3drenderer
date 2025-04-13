@@ -33,6 +33,26 @@ mat4_t mat4_identity(void);
  */
 mat4_t mat4_make_scale(float sx, float sy, float sz);
 
-vec4_t mat4_mul_vec4(mat4_t scale_matrix, vec4_t vec);
+
+/**
+ * Creates a 4X4 translation matrix.
+ * 
+ * |  1  0  0  sx | ```
+ * |  0  1  0  sy | 
+ * |  0  0  1  sz | 
+ * |  0  0  0  1  |
+ * 
+ * @param tx the translation factor for the x axis.
+ * @param ty the translation factor for the y axis.
+ * @param tz the translation factor for the z axis.
+ * 
+ * @return the 4X4 translation matrix.
+ */
+mat4_t mat4_make_translation(float tx, float ty, float tz);
+
+/**
+ * Multiply a 4X4 matrix by a 4X1 matrix (which is a vector with 4 dimensions)
+ */
+vec4_t mat4_mul_vec4(mat4_t mat, vec4_t vec);
 
 #endif

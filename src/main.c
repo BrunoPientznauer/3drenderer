@@ -123,8 +123,15 @@ void update(void)
 	// increases the scale of the mesh in every frame
 	mesh.scale.x += 0.002;
 
-	// create scale matrix to mutiply the mesh vertices
+	// Increases the translation every frame
+	mesh.translation.x += 0.01;
+
+	// Sets the translation in z to represent the camera depth.
+	mesh.translation.z = 5;
+
+	// creates the scale, translation and rotation matrices to mutiply the mesh vertices
 	mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
+	mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
 
 	int num_faces = array_length(mesh.faces);
 
@@ -148,7 +155,8 @@ void update(void)
 			// use the scale matrix to scale the vertex.
 			transformed_vertex = mat4_mul_vec4(scale_matrix, transformed_vertex);
 
-			transformed_vertex.z += 5;
+			// use the translation matrix to move the vertex.
+			transformed_vertex = mat4_mul_vec4(translation_matrix, transformed_vertex);
 
 			transformed_vertices[j] = transformed_vertex;
 		}
