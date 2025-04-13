@@ -50,6 +50,43 @@ mat4_t mat4_make_scale(float sx, float sy, float sz);
  */
 mat4_t mat4_make_translation(float tx, float ty, float tz);
 
+
+/**
+ * Makes a 4X4 matrix that represents the rotation in the z axis.
+ * 
+ * |  c  -s  0  0 | ```
+ * |  s   c  0  0 | 
+ * |  0   0  1  0 | 
+ * |  0   0  0  1  |
+ * 
+ * @param angle the angle to rotate.
+ */
+mat4_t mat4_make_rotation_z(float angle);
+
+/**
+ * Makes a 4X4 matrix that represents the rotation in the x axis.
+ * 
+ * |  1   0  0  0 | ```
+ * |  c  -s  0  0 | 
+ * |  s   c  1  0 | 
+ * |  0   0  0  1  |
+ * 
+ * @param angle the angle to rotate.
+ */
+mat4_t mat4_make_rotation_x(float angle);
+
+/**
+ * Makes a 4X4 matrix that represents the rotation in the y axis.
+ * 
+ * |  c  s  0  0 | ```
+ * |  0  1  0  0 | 
+ * | -s  c  1  0 | 
+ * |  0  0  0  1 |
+ * 
+ * @param angle the angle to rotate.
+ */
+mat4_t mat4_make_rotation_y(float angle);
+
 /**
  * Multiply a 4X4 matrix by a 4X1 matrix (which is a vector with 4 dimensions)
  */

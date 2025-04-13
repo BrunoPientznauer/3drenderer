@@ -121,7 +121,7 @@ void update(void)
 	mesh.rotation.z += 0.01;
 
 	// increases the scale of the mesh in every frame
-	mesh.scale.x += 0.002;
+	// mesh.scale.x += 0.002;
 
 	// Increases the translation every frame
 	mesh.translation.x += 0.01;
@@ -132,6 +132,11 @@ void update(void)
 	// creates the scale, translation and rotation matrices to mutiply the mesh vertices
 	mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
 	mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
+
+	// creates the rotation matrices for x, y and z axis.
+	mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
+	mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
+	mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
 
 	int num_faces = array_length(mesh.faces);
 
@@ -150,10 +155,17 @@ void update(void)
 		// loops all the vertices in this face and transform them
 		for (int j = 0; j < 3; j++)
 		{
+			// IMPORTANT NOTE!! the order of transformation operations needs to be scale -> rotate -> translate.
+
 			vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 
 			// use the scale matrix to scale the vertex.
 			transformed_vertex = mat4_mul_vec4(scale_matrix, transformed_vertex);
+
+			// use the rotation matrices to mutiply the vertex and rotate the object.
+			transformed_vertex = mat4_mul_vec4(rotation_matrix_x, transformed_vertex);
+			transformed_vertex = mat4_mul_vec4(rotation_matrix_z, transformed_vertex);
+			transformed_vertex = mat4_mul_vec4(rotation_matrix_y, transformed_vertex);
 
 			// use the translation matrix to move the vertex.
 			transformed_vertex = mat4_mul_vec4(translation_matrix, transformed_vertex);
@@ -224,6 +236,8 @@ void update(void)
 
 void render(void)
 {
+	SDL_RenderClear(renderer);
+	
 	draw_grid(10);
 
 	int num_triangles = array_length(triangles_to_render);
@@ -255,6 +269,7 @@ void render(void)
 	array_free(triangles_to_render);
 
 	render_color_buffer();
+
 	clear_color_buffer(0x00000000);
 
 	SDL_RenderPresent(renderer);

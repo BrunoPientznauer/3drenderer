@@ -1,4 +1,5 @@
 #include "matrix.h"
+#include "math.h"
 
 mat4_t mat4_identity(void)
 {
@@ -32,6 +33,64 @@ mat4_t mat4_make_translation(float tx, float ty, float tz)
     translation_matrix.m[2][3] = tz;
 
     return translation_matrix;
+}
+
+mat4_t mat4_make_rotation_z(float angle)
+{
+    // calculates the sin and cosine
+    float c = cos(angle);
+    float s = sin(angle);
+
+    mat4_t rotation_matrix = mat4_identity();
+
+    // sets the x values
+    rotation_matrix.m[0][0] = c;
+    rotation_matrix.m[0][1] = -s;
+
+    // sets the y values
+    rotation_matrix.m[1][0] = s;
+    rotation_matrix.m[1][1] = c;
+
+    return rotation_matrix;
+}
+
+mat4_t mat4_make_rotation_x(float angle)
+{
+    // calculates the sin and cosine
+    float c = cos(angle);
+    float s = sin(angle);
+
+    mat4_t rotation_matrix = mat4_identity();
+
+    // sets the y values
+    rotation_matrix.m[1][1] = c;
+    rotation_matrix.m[1][2] = -s;
+
+    // sets the z values
+    rotation_matrix.m[2][1] = s;
+    rotation_matrix.m[2][2] = c;
+
+    return rotation_matrix;
+}
+
+
+mat4_t mat4_make_rotation_y(float angle)
+{
+    // calculates the sin and cosine
+    float c = cos(angle);
+    float s = sin(angle);
+
+    mat4_t rotation_matrix = mat4_identity();
+
+    // sets the x values
+    rotation_matrix.m[0][0] = c;
+    rotation_matrix.m[0][2] = s;
+
+    // sets the z values
+    rotation_matrix.m[2][0] = -s;
+    rotation_matrix.m[2][2] = c;
+
+    return rotation_matrix;
 }
 
 vec4_t mat4_mul_vec4(mat4_t mat, vec4_t vec)
