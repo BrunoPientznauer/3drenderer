@@ -3,12 +3,10 @@
 
 mat4_t mat4_identity(void)
 {
-    mat4_t m = {{
-        {1, 0, 0, 0},
-        {0, 1, 0, 0},
-        {0, 0, 1, 0},
-        {0, 0, 0, 1}
-    }};
+    mat4_t m = {{{1, 0, 0, 0},
+                 {0, 1, 0, 0},
+                 {0, 0, 1, 0},
+                 {0, 0, 0, 1}}};
 
     return m;
 }
@@ -73,7 +71,6 @@ mat4_t mat4_make_rotation_x(float angle)
     return rotation_matrix;
 }
 
-
 mat4_t mat4_make_rotation_y(float angle)
 {
     // calculates the sin and cosine
@@ -93,14 +90,27 @@ mat4_t mat4_make_rotation_y(float angle)
     return rotation_matrix;
 }
 
+mat4_t mat4_make_perspective(float aspect, float fov, float zfar, float znear)
+{
+    mat4_t result = {{{0}}};
+
+    result.m[0][0] = (aspect * (1 / tan(fov / 2)));
+    result.m[1][1] = 1 / tan(fov / 2);
+    result.m[2][2] = zfar / (zfar - znear);
+    result.m[2][3] = (-zfar * znear) / (zfar - znear);
+    result.m[3][2] = 1.0;
+
+    return result;
+}
+
 vec4_t mat4_mul_vec4(mat4_t mat, vec4_t vec)
 {
     vec4_t result;
 
-    result.x  = (mat.m[0][0] * vec.x) + (mat.m[0][1] * vec.y) + (mat.m[0][2] * vec.z) + (mat.m[0][3] * vec.w);
-    result.y  = (mat.m[1][0] * vec.x) + (mat.m[1][1] * vec.y) + (mat.m[1][2] * vec.z) + (mat.m[1][3] * vec.w);
-    result.z  = (mat.m[2][0] * vec.x) + (mat.m[2][1] * vec.y) + (mat.m[2][2] * vec.z) + (mat.m[2][3] * vec.w);
-    result.w  = (mat.m[3][0] * vec.x) + (mat.m[3][1] * vec.y) + (mat.m[3][2] * vec.z) + (mat.m[3][3] * vec.w);
+    result.x = (mat.m[0][0] * vec.x) + (mat.m[0][1] * vec.y) + (mat.m[0][2] * vec.z) + (mat.m[0][3] * vec.w);
+    result.y = (mat.m[1][0] * vec.x) + (mat.m[1][1] * vec.y) + (mat.m[1][2] * vec.z) + (mat.m[1][3] * vec.w);
+    result.z = (mat.m[2][0] * vec.x) + (mat.m[2][1] * vec.y) + (mat.m[2][2] * vec.z) + (mat.m[2][3] * vec.w);
+    result.w = (mat.m[3][0] * vec.x) + (mat.m[3][1] * vec.y) + (mat.m[3][2] * vec.z) + (mat.m[3][3] * vec.w);
 
     return result;
 }
@@ -109,10 +119,27 @@ mat4_t mat4_mul_mat4(mat4_t m1, mat4_t m2)
 {
     mat4_t result;
 
-    for(int i = 0; i < 4; i++){
-        for (int j = 0; j < 4; j++){
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
             result.m[i][j] = (m1.m[i][0] * m2.m[0][j]) + (m1.m[i][1] * m2.m[1][j]) + (m1.m[i][2] * m2.m[2][j]) + (m1.m[i][3] * m2.m[3][j]);
         }
+    }
+
+    return result;
+}
+
+vec4_t mat4_mult_vec4_project(mat4_t projection_matrix, vec4_t v)
+{
+    // multiply the projection matrix by the original vector.
+    vec4_t result =  mat4_mul_vec4(projection_matrix, v);
+
+    // perform perspective divide with the original value that is now stored on w.
+    if(result.w != 0){
+        result.x /= result.w;
+        result.y /= result.w;
+        result.z /= result.w;
     }
 
     return result;
