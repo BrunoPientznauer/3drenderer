@@ -89,7 +89,7 @@ void load_obj_mesh_data(char* filename){
                 &vertex_indices[2], &textures_indices[2], &normals_indices[2]
             );
 
-            face_t face = {vertex_indices[0], vertex_indices[1], vertex_indices[2]};
+            face_t face = {vertex_indices[0], vertex_indices[1], vertex_indices[2], 0xFFFFFFFF};
             array_push(mesh.faces, face);
 
             // printf("{%d, %d ,%d}\n", face.a, face.b, face.c);

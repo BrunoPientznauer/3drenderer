@@ -17,7 +17,7 @@ triangle_t *triangles_to_render = NULL;
 
 vec3_t camera_position = {0, 0, 0};
 
-light_t directional_light = {.direction = {0, 0, -1}};
+light_t directional_light = {.direction = {0, 0, 1}};
 
 mat4_t projection_matrix;
 
@@ -65,8 +65,8 @@ void setup(void)
 
 	cull_method = CULL_BACKFACE;
 
-	load_cube_mesh_data();
-	// load_obj_mesh_data("./assets/cube.obj");
+	// load_cube_mesh_data();
+	load_obj_mesh_data("./assets/f22.obj");
 }
 
 void proccess_input(void)
@@ -184,31 +184,31 @@ void update(void)
 			transformed_vertices[j] = transformed_vertex;
 		}
 
+		vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);
+		vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);
+		vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);
+
+		// gets the vectors of the subtractions B-A and C-A
+		vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+		vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+		vec3_normalize(&vector_ab);
+		vec3_normalize(&vector_ac);
+
+		// gets the normal vector of the face by performing the cross product of the vectors between the vertices B and C to A.
+		vec3_t face_normal = vec3_cross(vector_ab, vector_ac);
+
+		// normalize the face normal vector
+		vec3_normalize(&face_normal);
+
+		// gets the vector of the distance between the camera position and the vertice a of the face
+		vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+
+		// gets the dot product between the vector of the distance between camera position and the a vertice and the face normal vector
+		float camera_dot_normal = vec3_dot(camera_ray, face_normal);
+
 		// performs back face culling
 		if (cull_method == CULL_BACKFACE)
 		{
-			vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);
-			vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);
-			vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);
-
-			// gets the vectors of the subtractions B-A and C-A
-			vec3_t vector_ab = vec3_sub(vector_b, vector_a);
-			vec3_t vector_ac = vec3_sub(vector_c, vector_a);
-			vec3_normalize(&vector_ab);
-			vec3_normalize(&vector_ac);
-
-			// gets the normal vector of the face by performing the cross product of the vectors between the vertices B and C to A.
-			vec3_t face_normal = vec3_cross(vector_ab, vector_ac);
-
-			// normalize the face normal vector
-			vec3_normalize(&face_normal);
-
-			// gets the vector of the distance between the camera position and the vertice a of the face
-			vec3_t camera_ray = vec3_sub(camera_position, vector_a);
-
-			// gets the dot product between the vector of the distance between camera position and the a vertice and the face normal vector
-			float camera_dot_normal = vec3_dot(camera_ray, face_normal);
-
 			if (camera_dot_normal < 0)
 			{
 				continue;
@@ -225,7 +225,7 @@ void update(void)
 
 			// scales the vertices into the screen.
 			projected_vertex[j].x *= (window_width / 2.0);
-            projected_vertex[j].y *= (window_height / 2.0);
+			projected_vertex[j].y *= (window_height / 2.0);
 
 			// translates the vertices to the middle of the screen.
 			projected_vertex[j].x += (window_width / 2.0);
@@ -236,23 +236,10 @@ void update(void)
 		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
 
 		// calculate the light intensity on the face, based on the angle between the light direction and tha face normal.
-		vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);
-		vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);
-		vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);
 
-		vec3_t vec_ab = vec3_sub(vector_a, vector_b);
-		vec3_t vec_bc = vec3_sub(vector_b, vector_c);
-		vec3_normalize(&vec_ab);
-		vec3_normalize(&vec_bc);
+		float light_percentage = -vec3_dot(face_normal, directional_light.direction);
 
-		vec3_t face_normal = vec3_cross(vec_ab, vec_bc);
-		vec3_normalize(&face_normal);
-
-		vec3_normalize(&directional_light.direction);
-
-		float light_percentage = vec3_dot(directional_light.direction, face_normal);
-
-		uint32_t face_color = light_apply_intensity(0xFFFFFFFF, light_percentage);
+		uint32_t face_color = light_apply_intensity(face.color, light_percentage);
 
 		triangle_t projected_triangle = {
 			.points = {
@@ -260,24 +247,26 @@ void update(void)
 				{projected_vertex[1].x, projected_vertex[1].y},
 				{projected_vertex[2].x, projected_vertex[2].y}},
 			.color = face_color,
-			.avg_depht = avg_depth
-		};
+			.avg_depht = avg_depth};
 
 		array_push(triangles_to_render, projected_triangle);
 	}
 
 	// Sort the triangles to render by their avg_depth
-    int num_triangles = array_length(triangles_to_render);
-    for (int i = 0; i < num_triangles; i++) {
-        for (int j = i; j < num_triangles; j++) {
-            if (triangles_to_render[i].avg_depht < triangles_to_render[j].avg_depht) {
-                // Swap the triangles positions in the array
-                triangle_t temp = triangles_to_render[i];
-                triangles_to_render[i] = triangles_to_render[j];
-                triangles_to_render[j] = temp;
-            }
-        }
-    }
+	int num_triangles = array_length(triangles_to_render);
+	for (int i = 0; i < num_triangles; i++)
+	{
+		for (int j = i; j < num_triangles; j++)
+		{
+			if (triangles_to_render[i].avg_depht < triangles_to_render[j].avg_depht)
+			{
+				// Swap the triangles positions in the array
+				triangle_t temp = triangles_to_render[i];
+				triangles_to_render[i] = triangles_to_render[j];
+				triangles_to_render[j] = temp;
+			}
+		}
+	}
 }
 
 void render(void)
