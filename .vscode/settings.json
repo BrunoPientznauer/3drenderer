@@ -3,6 +3,7 @@
         "display.h": "c",
         "sdl.h": "c",
         "vectors.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "array.h": "c"
     }
 }

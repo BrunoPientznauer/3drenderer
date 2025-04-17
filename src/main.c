@@ -8,6 +8,7 @@
 #include "mesh.h"
 #include "array.h"
 #include "matrix.h"
+#include "light.h"
 
 #define PI 3.14159265358979323846
 
@@ -16,7 +17,9 @@ triangle_t *triangles_to_render = NULL;
 
 vec3_t camera_position = {0, 0, 0};
 
-mat4_t perspective_matrix;
+light_t directional_light = {.direction = {0, 0, -1}};
+
+mat4_t projection_matrix;
 
 bool is_running = false;
 
@@ -51,15 +54,16 @@ void setup(void)
 		SDL_PIXELFORMAT_ARGB8888,
 		SDL_TEXTUREACCESS_STREAMING,
 		window_width,
-		window_height
-	);
-		
+		window_height);
+
 	// initialize the perspective matrix to multiply by the vertices during projection.
 	float fov = PI / 3.0; // the same as 180/3, or 60 degrees
 	float aspect = (float)window_height / (float)window_width;
 	float znear = 0.1;
 	float zfar = 100.0;
-	perspective_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
+	projection_matrix = mat4_make_perspective(aspect, fov, znear, zfar);
+
+	cull_method = CULL_BACKFACE;
 
 	load_cube_mesh_data();
 	// load_obj_mesh_data("./assets/cube.obj");
@@ -99,7 +103,6 @@ void proccess_input(void)
 	}
 }
 
-
 void update(void)
 {
 	// lock the program fps
@@ -117,7 +120,7 @@ void update(void)
 
 	// add rotation on every axis of the cube
 	mesh.rotation.x += 0.01;
-	// mesh.rotation.y += 0.01;
+	mesh.rotation.y += 0.01;
 	// mesh.rotation.z += 0.01;
 
 	// increases the scale of the mesh in every frame
@@ -127,7 +130,7 @@ void update(void)
 	// mesh.translation.x += 0.01;
 
 	// Sets the translation in z to represent the camera depth.
-	mesh.translation.z = 5;
+	mesh.translation.z = 5.0;
 
 	// creates the scale, translation and rotation matrices to mutiply the mesh vertices
 	mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -168,9 +171,9 @@ void update(void)
 			world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
 
 			// multiply by the rotation matrices.
+			world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
 			world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
 			world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
-			world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
 
 			// multiply by the translation matrix.
 			world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
@@ -218,11 +221,11 @@ void update(void)
 		for (int j = 0; j < 3; j++)
 		{
 			// make the perspective projection
-			projected_vertex[j] = mat4_mult_vec4_project(perspective_matrix, transformed_vertices[j]);
+			projected_vertex[j] = mat4_mult_vec4_project(projection_matrix, transformed_vertices[j]);
 
 			// scales the vertices into the screen.
-			projected_vertex[j].x *= (window_width / 6.0);
-			projected_vertex[j].y *= (window_width / 6.0);
+			projected_vertex[j].x *= (window_width / 2.0);
+            projected_vertex[j].y *= (window_height / 2.0);
 
 			// translates the vertices to the middle of the screen.
 			projected_vertex[j].x += (window_width / 2.0);
@@ -232,17 +235,49 @@ void update(void)
 		// calculate the average z position of the vertice to perform the painters algorithm.
 		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
 
+		// calculate the light intensity on the face, based on the angle between the light direction and tha face normal.
+		vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);
+		vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);
+		vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);
+
+		vec3_t vec_ab = vec3_sub(vector_a, vector_b);
+		vec3_t vec_bc = vec3_sub(vector_b, vector_c);
+		vec3_normalize(&vec_ab);
+		vec3_normalize(&vec_bc);
+
+		vec3_t face_normal = vec3_cross(vec_ab, vec_bc);
+		vec3_normalize(&face_normal);
+
+		vec3_normalize(&directional_light.direction);
+
+		float light_percentage = vec3_dot(directional_light.direction, face_normal);
+
+		uint32_t face_color = light_apply_intensity(0xFFFFFFFF, light_percentage);
+
 		triangle_t projected_triangle = {
 			.points = {
 				{projected_vertex[0].x, projected_vertex[0].y},
 				{projected_vertex[1].x, projected_vertex[1].y},
 				{projected_vertex[2].x, projected_vertex[2].y}},
-			.color = face.color,
-			.avg_depht = avg_depth};
+			.color = face_color,
+			.avg_depht = avg_depth
+		};
+
 		array_push(triangles_to_render, projected_triangle);
 	}
 
-	array_bubble_sort(triangles_to_render);
+	// Sort the triangles to render by their avg_depth
+    int num_triangles = array_length(triangles_to_render);
+    for (int i = 0; i < num_triangles; i++) {
+        for (int j = i; j < num_triangles; j++) {
+            if (triangles_to_render[i].avg_depht < triangles_to_render[j].avg_depht) {
+                // Swap the triangles positions in the array
+                triangle_t temp = triangles_to_render[i];
+                triangles_to_render[i] = triangles_to_render[j];
+                triangles_to_render[j] = temp;
+            }
+        }
+    }
 }
 
 void render(void)
@@ -284,7 +319,7 @@ void render(void)
 
 	render_color_buffer();
 
-	clear_color_buffer(0x00000000);
+	clear_color_buffer(0xFF000000);
 
 	SDL_RenderPresent(renderer);
 }

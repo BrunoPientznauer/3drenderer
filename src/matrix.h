@@ -99,7 +99,7 @@ mat4_t mat4_make_rotation_y(float angle);
 mat4_t mat4_make_perspective(float aspect, float fov, float zfar, float znear);
 
 /** Multiply a 4X4 matrix by a 4X1 matrix (which is a vector with 4 dimensions) */
-vec4_t mat4_mul_vec4(mat4_t mat, vec4_t vec);
+vec4_t mat4_mul_vec4(mat4_t m, vec4_t v);
 
 /** Multiply a 4X4 matrix by another 4X4 matrix. */
 mat4_t mat4_mul_mat4(mat4_t m1, mat4_t m2);

@@ -92,6 +92,10 @@ mat4_t mat4_make_rotation_y(float angle)
 
 mat4_t mat4_make_perspective(float aspect, float fov, float zfar, float znear)
 {
+    // | (h/w)*1/tan(fov/2)             0              0                 0 |
+    // |                  0  1/tan(fov/2)              0                 0 |
+    // |                  0             0     zf/(zf-zn)  (-zf*zn)/(zf-zn) |
+    // |                  0             0              1                 0 |
     mat4_t result = {{{0}}};
 
     result.m[0][0] = (aspect * (1 / tan(fov / 2)));
@@ -103,15 +107,12 @@ mat4_t mat4_make_perspective(float aspect, float fov, float zfar, float znear)
     return result;
 }
 
-vec4_t mat4_mul_vec4(mat4_t mat, vec4_t vec)
-{
+vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
     vec4_t result;
-
-    result.x = (mat.m[0][0] * vec.x) + (mat.m[0][1] * vec.y) + (mat.m[0][2] * vec.z) + (mat.m[0][3] * vec.w);
-    result.y = (mat.m[1][0] * vec.x) + (mat.m[1][1] * vec.y) + (mat.m[1][2] * vec.z) + (mat.m[1][3] * vec.w);
-    result.z = (mat.m[2][0] * vec.x) + (mat.m[2][1] * vec.y) + (mat.m[2][2] * vec.z) + (mat.m[2][3] * vec.w);
-    result.w = (mat.m[3][0] * vec.x) + (mat.m[3][1] * vec.y) + (mat.m[3][2] * vec.z) + (mat.m[3][3] * vec.w);
-
+    result.x = m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3] * v.w;
+    result.y = m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[1][3] * v.w;
+    result.z = m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[2][3] * v.w;
+    result.w = m.m[3][0] * v.x + m.m[3][1] * v.y + m.m[3][2] * v.z + m.m[3][3] * v.w;
     return result;
 }
 

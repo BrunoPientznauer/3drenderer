@@ -171,7 +171,7 @@ vec3_t vector_rotate_z(vec3_t vec, float angle)
 
 vec4_t vec4_from_vec3(vec3_t vec3)
 {
-    vec4_t v = {.x = vec3.x, .y = vec3.y, .z = vec3.z, .w = 1};
+    vec4_t v = {.x = vec3.x, .y = vec3.y, .z = vec3.z, .w = 1.0};
     return v;
 }
 

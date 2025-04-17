@@ -21,5 +21,4 @@ void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int mx, int my, u
 void fill_flat_top_triangle(int x1, int y1, int mx, int my, int x2, int y2, uint32_t color);
 void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 
-void array_bubble_sort(triangle_t* array);
 #endif
