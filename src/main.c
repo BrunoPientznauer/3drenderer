@@ -64,6 +64,7 @@ void setup(void)
 	projection_matrix = mat4_make_perspective(aspect, fov, znear, zfar);
 
 	cull_method = CULL_BACKFACE;
+	render_method = RENDER_FILL_TRIANGLE;
 
 	// load_cube_mesh_data();
 	load_obj_mesh_data("./assets/f22.obj");
@@ -119,8 +120,8 @@ void update(void)
 	triangles_to_render = NULL;
 
 	// add rotation on every axis of the cube
-	mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.01;
+	mesh.rotation.x += 0.001;
+	// mesh.rotation.y += 0.01;
 	// mesh.rotation.z += 0.01;
 
 	// increases the scale of the mesh in every frame
@@ -226,6 +227,9 @@ void update(void)
 			// scales the vertices into the screen.
 			projected_vertex[j].x *= (window_width / 2.0);
 			projected_vertex[j].y *= (window_height / 2.0);
+
+			// invert the y value to account for the screen y coord.
+			projected_vertex[j].y *= -1;
 
 			// translates the vertices to the middle of the screen.
 			projected_vertex[j].x += (window_width / 2.0);
