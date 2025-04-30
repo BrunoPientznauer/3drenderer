@@ -9,6 +9,7 @@
 #include "array.h"
 #include "matrix.h"
 #include "light.h"
+#include "texture.h"
 
 #define PI 3.14159265358979323846
 
@@ -36,7 +37,9 @@ enum render_method
 	RENDER_WIRE,
 	RENDER_WIRE_VERTEX,
 	RENDER_FILL_TRIANGLE,
-	RENDER_FILL_TRIANGLE_WIRE
+	RENDER_FILL_TRIANGLE_WIRE,
+	RENDER_TEXTURED,
+	RENDER_TEXTURED_WIRE
 } render_method;
 
 void setup(void)
@@ -66,8 +69,11 @@ void setup(void)
 	cull_method = CULL_BACKFACE;
 	render_method = RENDER_FILL_TRIANGLE;
 
-	// load_cube_mesh_data();
-	load_obj_mesh_data("./assets/f22.obj");
+	// loads the hardcoded brick texture to a uint32_t pointer.
+	mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
+
+	load_cube_mesh_data();
+	// load_obj_mesh_data("./assets/f22.obj");
 }
 
 void proccess_input(void)
@@ -95,6 +101,10 @@ void proccess_input(void)
 			render_method = RENDER_FILL_TRIANGLE;
 		if (event.key.keysym.sym == SDLK_4)
 			render_method = RENDER_FILL_TRIANGLE_WIRE;
+		if (event.key.keysym.sym == SDLK_5)
+			render_method = RENDER_TEXTURED;
+		if (event.key.keysym.sym == SDLK_6)
+			render_method = RENDER_TEXTURED_WIRE;
 		if (event.key.keysym.sym == SDLK_c)
 			cull_method = CULL_BACKFACE;
 		if (event.key.keysym.sym == SDLK_d)
@@ -185,6 +195,9 @@ void update(void)
 			transformed_vertices[j] = transformed_vertex;
 		}
 
+
+		/* calculates the normal of the face */
+
 		vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);
 		vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);
 		vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);
@@ -230,6 +243,7 @@ void update(void)
 
 			// invert the y value to account for the screen y coord.
 			projected_vertex[j].y *= -1;
+			projected_vertex[j].x *= -1;
 
 			// translates the vertices to the middle of the screen.
 			projected_vertex[j].x += (window_width / 2.0);
@@ -239,7 +253,8 @@ void update(void)
 		// calculate the average z position of the vertice to perform the painters algorithm.
 		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
 
-		// calculate the light intensity on the face, based on the angle between the light direction and tha face normal.
+
+		/* calculate the light intensity on the face, based on the angle between the light direction and the face normal. */
 
 		float light_percentage = -vec3_dot(face_normal, directional_light.direction);
 
@@ -250,6 +265,11 @@ void update(void)
 				{projected_vertex[0].x, projected_vertex[0].y},
 				{projected_vertex[1].x, projected_vertex[1].y},
 				{projected_vertex[2].x, projected_vertex[2].y}},
+			.texcoords = {
+				{face.a_uv.u, face.a_uv.v},
+				{face.b_uv.u, face.b_uv.v},
+				{face.c_uv.u, face.c_uv.v}
+			},
 			.color = face_color,
 			.avg_depht = avg_depth};
 
@@ -300,7 +320,16 @@ void render(void)
 				triangle.color);
 		}
 
-		if (render_method == RENDER_WIRE_VERTEX || render_method == RENDER_WIRE || render_method == RENDER_FILL_TRIANGLE_WIRE)
+		if(render_method == RENDER_TEXTURED || render_method == RENDER_TEXTURED_WIRE){
+			draw_textured_triangle(
+				triangle.points[0].x, triangle.points[0].y, triangle.texcoords[0].u, triangle.texcoords[0].v, // vertex A
+				triangle.points[1].x, triangle.points[1].y, triangle.texcoords[1].u, triangle.texcoords[1].v, // vertex B
+				triangle.points[2].x, triangle.points[2].y, triangle.texcoords[2].u, triangle.texcoords[2].v,
+				mesh_texture // vertex C
+			);
+		}
+
+		if (render_method == RENDER_WIRE_VERTEX || render_method == RENDER_WIRE || render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_TEXTURED_WIRE)
 		{
 			// draw the wireframe of the triangle
 			draw_triangle(triangle.points[0], triangle.points[1], triangle.points[2], 0xFFFFFFFF);
