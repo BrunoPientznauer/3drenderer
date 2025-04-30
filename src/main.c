@@ -130,7 +130,7 @@ void update(void)
 	triangles_to_render = NULL;
 
 	// add rotation on every axis of the cube
-	mesh.rotation.x += 0.001;
+	mesh.rotation.x += 0.01;
 	// mesh.rotation.y += 0.01;
 	// mesh.rotation.z += 0.01;
 
