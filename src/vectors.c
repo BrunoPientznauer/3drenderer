@@ -24,7 +24,7 @@ vec2_t vec2_sub(vec2_t a, vec2_t b)
 {
     vec2_t result = {
         .x = a.x - b.x,
-        .y = a.y - a.y
+        .y = a.y - b.y
     };
 
     return result;
@@ -53,6 +53,7 @@ float vec2_dot(vec3_t a, vec3_t b)
 {
     return (a.x * b.x) + (a.y * b.y);
 }
+
 
 void vec2_normalize(vec2_t* v)
 {

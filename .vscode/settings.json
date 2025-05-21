@@ -4,7 +4,8 @@
         "sdl.h": "c",
         "vectors.h": "c",
         "math.h": "c",
-        "array.h": "c"
+        "array.h": "c",
+        "light.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabledIfIncludesResolve"
 }
