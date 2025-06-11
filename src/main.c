@@ -130,8 +130,8 @@ void update(void)
 	triangles_to_render = NULL;
 
 	// add rotation on every axis of the cube
-	mesh.rotation.x += 0.01;
-	// mesh.rotation.y += 0.01;
+	// mesh.rotation.x += 0.01;
+	mesh.rotation.y += 0.01;
 	// mesh.rotation.z += 0.01;
 
 	// increases the scale of the mesh in every frame
@@ -262,9 +262,9 @@ void update(void)
 
 		triangle_t projected_triangle = {
 			.points = {
-				{projected_vertex[0].x, projected_vertex[0].y},
-				{projected_vertex[1].x, projected_vertex[1].y},
-				{projected_vertex[2].x, projected_vertex[2].y}},
+				{projected_vertex[0].x, projected_vertex[0].y, projected_vertex[0].z, projected_vertex[0].w},
+				{projected_vertex[1].x, projected_vertex[1].y, projected_vertex[1].z, projected_vertex[1].w},
+				{projected_vertex[2].x, projected_vertex[2].y, projected_vertex[2].z, projected_vertex[2].w}},
 			.texcoords = {
 				{face.a_uv.u, face.a_uv.v},
 				{face.b_uv.u, face.b_uv.v},
@@ -322,9 +322,9 @@ void render(void)
 
 		if(render_method == RENDER_TEXTURED || render_method == RENDER_TEXTURED_WIRE){
 			draw_textured_triangle(
-				triangle.points[0].x, triangle.points[0].y, triangle.texcoords[0].u, triangle.texcoords[0].v, // vertex A
-				triangle.points[1].x, triangle.points[1].y, triangle.texcoords[1].u, triangle.texcoords[1].v, // vertex B
-				triangle.points[2].x, triangle.points[2].y, triangle.texcoords[2].u, triangle.texcoords[2].v, // vertex C
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, // vertex A
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, // vertex B
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, // vertex C
 				mesh_texture
 			);
 		}
@@ -332,7 +332,7 @@ void render(void)
 		if (render_method == RENDER_WIRE_VERTEX || render_method == RENDER_WIRE || render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_TEXTURED_WIRE)
 		{
 			// draw the wireframe of the triangle
-			draw_triangle(triangle.points[0], triangle.points[1], triangle.points[2], 0xFFFFFFFF);
+			draw_triangle(vec2_from_vec4(triangle.points[0]), vec2_from_vec4(triangle.points[1]), vec2_from_vec4(triangle.points[2]), 0xFFFFFFFF);
 		}
 	}
 

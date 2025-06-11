@@ -83,4 +83,7 @@ vec4_t vec4_from_vec3(vec3_t vec3);
 /** creates a vec3 based on a vec4 */
 vec3_t vec3_from_vec4(vec4_t vec4);
 
+/** creates a vec2 based on a vec4 */
+vec2_t vec2_from_vec4(vec4_t v);
+
 #endif
