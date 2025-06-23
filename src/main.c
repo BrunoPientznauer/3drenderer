@@ -54,10 +54,11 @@ void setup(void)
 
 	color_buffer_texture = SDL_CreateTexture(
 		renderer,
-		SDL_PIXELFORMAT_ARGB8888,
+		SDL_PIXELFORMAT_RGBA32,
 		SDL_TEXTUREACCESS_STREAMING,
 		window_width,
 		window_height);
+		
 
 	// initialize the perspective matrix to multiply by the vertices during projection.
 	float fov = PI / 3.0; // the same as 180/3, or 60 degrees
@@ -70,10 +71,12 @@ void setup(void)
 	render_method = RENDER_FILL_TRIANGLE;
 
 	// loads the hardcoded brick texture to a uint32_t pointer.
-	mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
+	// mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
 
 	load_cube_mesh_data();
 	// load_obj_mesh_data("./assets/f22.obj");
+
+	load_png_texture_data("./assets/cube.png");
 }
 
 void proccess_input(void)
@@ -169,9 +172,9 @@ void update(void)
 		// loops all the vertices in this face and transform them
 		for (int j = 0; j < 3; j++)
 		{
-			///////// IMPORTANT NOTE!! //////////
+			///////////////////////////// IMPORTANT NOTE!! ///////////////////////////////////
 			// the order of transformation operations needs to be scale -> rotate -> translate.
-			/////////////////////////////////////
+			/////////////////////////////////////////////////////////////////////////////////
 
 			vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 
@@ -352,6 +355,7 @@ void render(void)
 void free_resources(void)
 {
 	free(color_buffer);
+	upng_free(png_texture);
 	array_free(mesh.faces);
 	array_free(mesh.vertices);
 }
