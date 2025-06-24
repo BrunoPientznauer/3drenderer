@@ -73,10 +73,10 @@ void setup(void)
 	// loads the hardcoded brick texture to a uint32_t pointer.
 	// mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
 
-	load_cube_mesh_data();
-	// load_obj_mesh_data("./assets/f22.obj");
+	// load_cube_mesh_data();
+	load_obj_mesh_data("./assets/crab.obj");
 
-	load_png_texture_data("./assets/cube.png");
+	load_png_texture_data("./assets/crab.png");
 }
 
 void proccess_input(void)
@@ -133,8 +133,8 @@ void update(void)
 	triangles_to_render = NULL;
 
 	// add rotation on every axis of the cube
-	// mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.01;
+	mesh.rotation.x += 0.005;
+	// mesh.rotation.y += 0.01;
 	// mesh.rotation.z += 0.01;
 
 	// increases the scale of the mesh in every frame
@@ -163,9 +163,9 @@ void update(void)
 		face_t face = mesh.faces[i];
 
 		vec3_t face_vertices[3];
-		face_vertices[0] = mesh.vertices[face.a - 1];
-		face_vertices[1] = mesh.vertices[face.b - 1];
-		face_vertices[2] = mesh.vertices[face.c - 1];
+		face_vertices[0] = mesh.vertices[face.a];
+		face_vertices[1] = mesh.vertices[face.b];
+		face_vertices[2] = mesh.vertices[face.c];
 
 		vec4_t transformed_vertices[3];
 

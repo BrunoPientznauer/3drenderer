@@ -68,6 +68,8 @@ void load_obj_mesh_data(char* filename){
         return;
     }
 
+    tex2_t* texcoords = NULL;
+
     char line[1024];
     while(fgets(line, 1024, file)){
         // Vertices information
@@ -75,6 +77,12 @@ void load_obj_mesh_data(char* filename){
             vec3_t vertex;
             sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
             array_push(mesh.vertices, vertex);
+        }
+
+        if(strncmp(line, "vt ", 3) == 0){
+            tex2_t texcoord;
+            sscanf(line, "vt %f %f", &texcoord.u, &texcoord.v);
+            array_push(texcoords, texcoord);
         }
         
         // Faces information
@@ -91,17 +99,24 @@ void load_obj_mesh_data(char* filename){
             );
 
             face_t face = {
-                .a = vertex_indices[0],
-                .b = vertex_indices[1],
-                .c = vertex_indices[2],
+                // The indices on obj files starts at 1, thats why its subtracting 1.
+
+                .a = vertex_indices[0] - 1,
+                .b = vertex_indices[1] - 1,
+                .c = vertex_indices[2] - 1,
+
+                .a_uv = texcoords[textures_indices[0] - 1],
+                .b_uv = texcoords[textures_indices[1] - 1],
+                .c_uv = texcoords[textures_indices[2] - 1],
+
                 .color = 0xFFFFFFFF
             };
 
             array_push(mesh.faces, face);
-
-            // printf("{%d, %d ,%d}\n", face.a, face.b, face.c);
         }
-    }
 
+    }
+    
+    array_free(texcoords);
     fclose(file);
 }

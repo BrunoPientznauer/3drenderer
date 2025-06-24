@@ -110,10 +110,10 @@ void draw_texel(int x, int y,
     interpolated_v /= interpolated_reciprocal_w;
 
     // Map the interpolated values to the full texture width and height.
-    int tex_x = abs((int)(interpolated_u * texture_width));
-    int tex_y = abs((int)(interpolated_v * texture_height));
+    int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
+    int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
-    int texIndex = ((texture_width * tex_y) + tex_x) % (texture_width * texture_height);
+    int texIndex = ((texture_width * tex_y) + tex_x);
 
     draw_pixel(x, y, texture[texIndex]);
 }
@@ -152,6 +152,11 @@ void  draw_textured_triangle(
         float_swap(&u0, &u1);
         float_swap(&v0, &v1);
     }
+
+    // Flip the V values to account for inverted UV-values (V grows downward).
+    v0 = 1 - v0;
+    v1 = 1 - v1;
+    v2 = 1 - v2;
 
     // Create vector points and texture coords after we sort the vertices
     vec4_t point_a = { x0, y0, z0, w0};
