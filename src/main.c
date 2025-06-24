@@ -134,8 +134,8 @@ void update(void)
 	triangles_to_render = NULL;
 
 	// add rotation on every axis of the cube
-	mesh.rotation.x += 0.005;
-	// mesh.rotation.y += 0.01;
+	// mesh.rotation.x += 0.005;
+	mesh.rotation.y += 0.01;
 	// mesh.rotation.z += 0.01;
 
 	// increases the scale of the mesh in every frame
@@ -275,7 +275,9 @@ void update(void)
 				{face.c_uv.u, face.c_uv.v}
 			},
 			.color = face_color,
-			.avg_depht = avg_depth};
+			.avg_depht = avg_depth,
+			.light_percentage = light_percentage
+		};
 
 		array_push(triangles_to_render, projected_triangle);
 	}
@@ -329,7 +331,7 @@ void render(void)
 				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, // vertex A
 				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, // vertex B
 				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, // vertex C
-				mesh_texture
+				mesh_texture, triangle.light_percentage
 			);
 		}
 
