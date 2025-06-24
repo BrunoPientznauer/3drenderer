@@ -45,6 +45,7 @@ enum render_method
 void setup(void)
 {
 	color_buffer = (uint32_t *)malloc(sizeof(uint32_t) * window_width * window_height);
+	z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
 
 	if (!color_buffer)
 	{
@@ -345,6 +346,7 @@ void render(void)
 	render_color_buffer();
 
 	clear_color_buffer(0xFF000000);
+	clear_z_buffer();
 
 	SDL_RenderPresent(renderer);
 }
@@ -355,6 +357,7 @@ void render(void)
 void free_resources(void)
 {
 	free(color_buffer);
+	free(z_buffer);
 	upng_free(png_texture);
 	array_free(mesh.faces);
 	array_free(mesh.vertices);

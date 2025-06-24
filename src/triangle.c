@@ -115,7 +115,22 @@ void draw_texel(int x, int y,
 
     int texIndex = ((texture_width * tex_y) + tex_x);
 
-    draw_pixel(x, y, texture[texIndex]);
+    // calculates the index of the actual pixel on the z buffer.
+    int z_buffer_index = window_width * y + x;
+
+    // adjust so the pixels that are closer to the camera have a smaller value then those who are further away.
+    interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
+
+    // only draw the pixel if the actual z value is less than the previous value on the correspondent index on the z buffer.
+    if(interpolated_reciprocal_w < z_buffer[z_buffer_index] ){
+        // draw the pixel on the x and y axes with the value on the texture.
+        draw_pixel(x, y, texture[texIndex]);
+
+        // updates the z buffer with the reciprocal value of z.
+        z_buffer[z_buffer_index] = interpolated_reciprocal_w;
+    }
+
+
 }
 
 void  draw_textured_triangle(
