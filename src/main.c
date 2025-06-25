@@ -13,8 +13,11 @@
 
 #define PI 3.14159265358979323846
 
+#define MAX_TRIANGLES_TO_RENDER 10000
+
 // define an array of triangles to be rendered on screen
-triangle_t *triangles_to_render = NULL;
+triangle_t triangles_to_render[MAX_TRIANGLES_TO_RENDER];
+int num_triangles_to_render = 0;
 
 vec3_t camera_position = {0, 0, 0};
 
@@ -130,8 +133,8 @@ void update(void)
 
 	previous_frame = SDL_GetTicks();
 
-	// initializes the array of triangles to render
-	triangles_to_render = NULL;
+	// initializes the count of triangles to render for the current frame
+	num_triangles_to_render = 0;
 
 	// add rotation on every axis of the cube
 	// mesh.rotation.x += 0.005;
@@ -275,7 +278,8 @@ void update(void)
 			.light_percentage = light_percentage
 		};
 
-		array_push(triangles_to_render, projected_triangle);
+		triangles_to_render[num_triangles_to_render] =  projected_triangle;
+		num_triangles_to_render++;
 	}
 }
 
@@ -285,8 +289,7 @@ void render(void)
 
 	draw_grid(10);
 
-	int num_triangles = array_length(triangles_to_render);
-	for (int i = 0; i < num_triangles; i++)
+	for (int i = 0; i < num_triangles_to_render; i++)
 	{
 		triangle_t triangle = triangles_to_render[i];
 
@@ -322,8 +325,6 @@ void render(void)
 		}
 	}
 
-	// clear the array of triangles to render
-	array_free(triangles_to_render);
 
 	render_color_buffer();
 
