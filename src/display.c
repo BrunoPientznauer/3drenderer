@@ -140,10 +140,3 @@ void draw_line_between_vectors(vec2_t p1, vec2_t p2, uint32_t color)
 {
     draw_line(p1.x, p1.y, p2.x, p2.y, color);
 }
-
-void draw_triangle(vec2_t v1, vec2_t v2, vec2_t v3, uint32_t color)
-{
-    draw_line_between_vectors(v1, v2, color);
-    draw_line_between_vectors(v2, v3, color);
-    draw_line_between_vectors(v3, v1, color);
-}

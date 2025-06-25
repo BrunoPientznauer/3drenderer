@@ -16,13 +16,14 @@ typedef struct{
     vec4_t points[3];
     tex2_t texcoords[3];
     uint32_t color;
-    float avg_depht;
     float light_percentage;
 }triangle_t;
 
-void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int mx, int my, uint32_t color);
-void fill_flat_top_triangle(int x1, int y1, int mx, int my, int x2, int y2, uint32_t color);
-void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
+void draw_filled_triangle(int x0, int y0, float z0, float w0, int x1, int y1, float z1, float w1, int x2, int y2, float z2, float w2,  uint32_t color);
+
+void draw_triangle_pixel(int x, int y, uint32_t color, vec4_t point_a, vec4_t point_b, vec4_t point_c);
+
+void draw_triangle_wire(vec4_t v1, vec4_t v2, vec4_t v3, uint32_t color);
 
 void draw_texel(int x, int y, uint32_t *texture, float light_percentage,
     vec4_t point_a, vec4_t point_b, vec4_t point_c, 
@@ -38,5 +39,6 @@ void draw_textured_triangle(
 /** returns the barycentric weights alpha, beta and gamma for point p */
 vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p);
 
+void draw_wire(int x0, int y0, float z0, float w0, int x1, int y1, float z1, float w1, int x2, int y2, float z2, float w2,  uint32_t color);
 
 #endif

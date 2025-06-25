@@ -254,9 +254,6 @@ void update(void)
 			projected_vertex[j].y += (window_height / 2.0);
 		}
 
-		// calculate the average z position of the vertice to perform the painters algorithm.
-		float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
-
 
 		/* calculate the light intensity on the face, based on the angle between the light direction and the face normal. */
 
@@ -275,27 +272,10 @@ void update(void)
 				{face.c_uv.u, face.c_uv.v}
 			},
 			.color = face_color,
-			.avg_depht = avg_depth,
 			.light_percentage = light_percentage
 		};
 
 		array_push(triangles_to_render, projected_triangle);
-	}
-
-	// Sort the triangles to render by their avg_depth
-	int num_triangles = array_length(triangles_to_render);
-	for (int i = 0; i < num_triangles; i++)
-	{
-		for (int j = i; j < num_triangles; j++)
-		{
-			if (triangles_to_render[i].avg_depht < triangles_to_render[j].avg_depht)
-			{
-				// Swap the triangles positions in the array
-				triangle_t temp = triangles_to_render[i];
-				triangles_to_render[i] = triangles_to_render[j];
-				triangles_to_render[j] = temp;
-			}
-		}
 	}
 }
 
@@ -320,9 +300,9 @@ void render(void)
 		if (render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_FILL_TRIANGLE)
 		{
 			draw_filled_triangle(
-				triangle.points[0].x, triangle.points[0].y, // vertex A
-				triangle.points[1].x, triangle.points[1].y, // vertex B
-				triangle.points[2].x, triangle.points[2].y, // vertex C
+				triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, // vertex A
+				triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, // vertex B
+				triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, // vertex C
 				triangle.color);
 		}
 
@@ -338,7 +318,7 @@ void render(void)
 		if (render_method == RENDER_WIRE_VERTEX || render_method == RENDER_WIRE || render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_TEXTURED_WIRE)
 		{
 			// draw the wireframe of the triangle
-			draw_triangle(vec2_from_vec4(triangle.points[0]), vec2_from_vec4(triangle.points[1]), vec2_from_vec4(triangle.points[2]), 0xFFFFFFFF);
+			draw_triangle_wire(triangle.points[0], triangle.points[1], triangle.points[2], 0xFFFFFFFF);
 		}
 	}
 
