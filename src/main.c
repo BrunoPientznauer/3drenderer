@@ -10,6 +10,7 @@
 #include "matrix.h"
 #include "light.h"
 #include "texture.h"
+#include "camera.h"
 
 #define PI 3.14159265358979323846
 
@@ -19,13 +20,20 @@
 triangle_t triangles_to_render[MAX_TRIANGLES_TO_RENDER];
 int num_triangles_to_render = 0;
 
-vec3_t camera_position = {0, 0, 0};
-
 light_t directional_light = {.direction = {0, 0, 1}};
 
+///////////////////////////////////////////////////////////////////////////////
+//DECLARE THE BASIC MATRICES 
+//////////////////////////////////////////////////////////////////////////////
 mat4_t projection_matrix;
+mat4_t view_matrix;
+mat4_t world_matrix;
 
+///////////////////////////////////////////////////////////////////////////////
+//DECLARE VARIABLES RELATED TO THE GAME LOOP 
+//////////////////////////////////////////////////////////////////////////////
 bool is_running = false;
+float delta_time = 0;
 
 vec2_t projected_points[N_CUBE_FACES * 3];
 
@@ -131,24 +139,35 @@ void update(void)
 		SDL_Delay(time_to_wait);
 	}
 
+	// get the delta time factor converted to seconds to multiply the update the game objects.
+	delta_time = (SDL_GetTicks() - previous_frame) / 1000.0f;
+
 	previous_frame = SDL_GetTicks();
 
 	// initializes the count of triangles to render for the current frame
 	num_triangles_to_render = 0;
 
 	// add rotation on every axis of the cube
-	// mesh.rotation.x += 0.005;
-	mesh.rotation.y += 0.01;
-	// mesh.rotation.z += 0.01;
+	// mesh.rotation.x += 0.005 * delta_time;
+	mesh.rotation.y += 0.01 * delta_time;
+	// mesh.rotation.z += 0.01 * delta_time;
 
 	// increases the scale of the mesh in every frame
-	// mesh.scale.x += 0.002;
+	// mesh.scale.x += 0.002 * delta_time;
 
 	// Increases the translation every frame
-	// mesh.translation.x += 0.01;
+	// mesh.translation.x += 0.01 * delta_time;
 
 	// Sets the translation in z to represent the camera depth.
 	mesh.translation.z = 5.0;
+
+	// move the camera to the right every frame.
+	camera.position.y -= -0.008 * delta_time;
+
+	// creates the view (or camera) matrix looking at a hardcoded target point.
+	vec3_t target = {0, 0, 10};
+	vec3_t up = {0, 1, 0};
+	view_matrix = mat4_look_at(camera.position, mesh.translation, up);
 
 	// creates the scale, translation and rotation matrices to mutiply the mesh vertices
 	mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -183,7 +202,7 @@ void update(void)
 			vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 
 			// Create a world matrix to combine all transformations in a single matrix and multiply the vertex by it.
-			mat4_t world_matrix = mat4_identity();
+			world_matrix = mat4_identity();
 
 			// multiply by the scale matrix.
 			world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
@@ -198,6 +217,9 @@ void update(void)
 
 			// Use the translation matrix to move the vertex.
 			transformed_vertex = mat4_mul_vec4(world_matrix, transformed_vertex);
+
+			// multiply the transformed vector by the view matrix to transform the scene to view(or camera) space.
+			transformed_vertex = mat4_mul_vec4(view_matrix, transformed_vertex);
 
 			transformed_vertices[j] = transformed_vertex;
 		}
@@ -222,7 +244,8 @@ void update(void)
 		vec3_normalize(&face_normal);
 
 		// gets the vector of the distance between the camera position and the vertice a of the face
-		vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+		vec3_t origin = {0, 0, 0};
+		vec3_t camera_ray = vec3_sub(origin, vector_a);
 
 		// gets the dot product between the vector of the distance between camera position and the a vertice and the face normal vector
 		float camera_dot_normal = vec3_dot(camera_ray, face_normal);
