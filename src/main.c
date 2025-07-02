@@ -86,9 +86,9 @@ void setup(void)
 	// mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
 
 	// load_cube_mesh_data();
-	load_obj_mesh_data("./assets/crab.obj");
+	load_obj_mesh_data("./assets/f22.obj");
 
-	load_png_texture_data("./assets/crab.png");
+	load_png_texture_data("./assets/f22.png");
 }
 
 void proccess_input(void)
@@ -122,8 +122,26 @@ void proccess_input(void)
 			render_method = RENDER_TEXTURED_WIRE;
 		if (event.key.keysym.sym == SDLK_c)
 			cull_method = CULL_BACKFACE;
-		if (event.key.keysym.sym == SDLK_d)
+		if (event.key.keysym.sym == SDLK_b)
 			cull_method = CULL_NONE;
+		if (event.key.keysym.sym == SDLK_q)
+			camera.position.y += 3.0 * delta_time;
+		if (event.key.keysym.sym == SDLK_e)
+			camera.position.y -= 3.0 * delta_time;
+		if (event.key.keysym.sym == SDLK_a)
+			camera.yaw += 3.0 * delta_time;
+		if (event.key.keysym.sym == SDLK_d)
+			camera.yaw -= 3.0 * delta_time;
+
+		if (event.key.keysym.sym == SDLK_w){
+			camera.forward_velocity =  vec3_mul(camera.direction, 5.0 * delta_time);
+			camera.position = vec3_add(camera.position, camera.forward_velocity);
+		}
+
+		if (event.key.keysym.sym == SDLK_s){
+			camera.forward_velocity =  vec3_mul(camera.direction, 5.0 * delta_time);
+			camera.position = vec3_sub(camera.position, camera.forward_velocity);
+		}
 
 		break;
 	}
@@ -149,7 +167,7 @@ void update(void)
 
 	// add rotation on every axis of the cube
 	// mesh.rotation.x += 0.005 * delta_time;
-	mesh.rotation.y += 0.01 * delta_time;
+	// mesh.rotation.y += 0.01 * delta_time;
 	// mesh.rotation.z += 0.01 * delta_time;
 
 	// increases the scale of the mesh in every frame
@@ -162,12 +180,19 @@ void update(void)
 	mesh.translation.z = 5.0;
 
 	// move the camera to the right every frame.
-	camera.position.y -= -0.008 * delta_time;
+	// camera.position.y -= -0.008 * delta_time;
 
-	// creates the view (or camera) matrix looking at a hardcoded target point.
-	vec3_t target = {0, 0, 10};
+	//////////// creates the view (or camera) matrix. //////////////////
+	
+	// finds the target position based on the yaw rotation of the camera.
+	vec3_t target = {0, 0, 1};
+	mat4_t yaw_rotation_matrix = mat4_make_rotation_y(camera.yaw);
+	camera.direction = vec3_from_vec4(mat4_mul_vec4(yaw_rotation_matrix, vec4_from_vec3(target)));
+	
+	target = vec3_add(camera.position, camera.direction);
 	vec3_t up = {0, 1, 0};
-	view_matrix = mat4_look_at(camera.position, mesh.translation, up);
+
+	view_matrix = mat4_look_at(camera.position, target, up);
 
 	// creates the scale, translation and rotation matrices to mutiply the mesh vertices
 	mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);

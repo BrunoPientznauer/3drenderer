@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "vectors.h"
 
-#define FPS 60
+#define FPS 100
 #define TARGET_FRAME_TIME (1000 / FPS)
 
 extern SDL_Window* window;
