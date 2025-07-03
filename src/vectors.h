@@ -20,6 +20,9 @@ typedef struct{
 // Vector 2 Functions
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+/** creates a new vec2 */
+vec2_t vec2_new(float x, float y);
+
 /** returns the magnitude of a 2 dimensional vector */
 float vec2_length(vec2_t v);
 
@@ -44,6 +47,9 @@ void vec2_normalize(vec2_t* v);
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Vector 3 Functions
 ////////////////////////////////////////////////////////////////////////////////////////////
+
+/** creates a new vec3 */
+vec3_t vec3_new(float x, float y, float z);
 
 /**  returns the maginute of a 3 dimensional vector */
 float vec3_length(vec3_t v);  

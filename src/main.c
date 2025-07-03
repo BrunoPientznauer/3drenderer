@@ -11,6 +11,7 @@
 #include "light.h"
 #include "texture.h"
 #include "camera.h"
+#include "clipping.h"
 
 #define PI 3.14159265358979323846
 
@@ -78,6 +79,9 @@ void setup(void)
 	float znear = 0.1;
 	float zfar = 100.0;
 	projection_matrix = mat4_make_perspective(aspect, fov, znear, zfar);
+
+	// initialize the frustrum planes with a field of view a near and a far
+	initialize_frustrum_planes(fov, znear, zfar);
 
 	cull_method = CULL_BACKFACE;
 	render_method = RENDER_FILL_TRIANGLE;
@@ -248,6 +252,16 @@ void update(void)
 
 			transformed_vertices[j] = transformed_vertex;
 		}
+
+		/* create a polygon of the transformed vertices to start the clipping process */
+		polygon_t polygon = create_polygon_from_triangle(
+			vec3_from_vec4(transformed_vertices[0]), 
+			vec3_from_vec4(transformed_vertices[1]), 
+			vec3_from_vec4(transformed_vertices[2])
+		);
+
+		// clip the polygon and transform it to a new polygon with potentially new vertices.
+		clip_polygon(&polygon);
 
 
 		/* calculates the normal of the face */
