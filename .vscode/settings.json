@@ -5,7 +5,8 @@
         "vectors.h": "c",
         "math.h": "c",
         "array.h": "c",
-        "light.h": "c"
+        "light.h": "c",
+        "stdbool.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabledIfIncludesResolve"
 }

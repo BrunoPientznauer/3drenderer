@@ -76,9 +76,9 @@ void setup(void)
 	// initialize the perspective matrix to multiply by the vertices during projection.
 	float fov = PI / 3.0; // the same as 180/3, or 60 degrees
 	float aspect = (float)window_height / (float)window_width;
-	float znear = 0.1;
-	float zfar = 100.0;
-	projection_matrix = mat4_make_perspective(aspect, fov, znear, zfar);
+	float znear = 1.0;
+	float zfar = 20.0;
+	projection_matrix = mat4_make_perspective(aspect, fov, zfar, znear);
 
 	// initialize the frustrum planes with a field of view a near and a far
 	initialize_frustrum_planes(fov, znear, zfar);
@@ -133,9 +133,9 @@ void proccess_input(void)
 		if (event.key.keysym.sym == SDLK_e)
 			camera.position.y -= 3.0 * delta_time;
 		if (event.key.keysym.sym == SDLK_a)
-			camera.yaw += 3.0 * delta_time;
+			camera.yaw += 1.0 * delta_time;
 		if (event.key.keysym.sym == SDLK_d)
-			camera.yaw -= 3.0 * delta_time;
+			camera.yaw -= 1.0 * delta_time;
 
 		if (event.key.keysym.sym == SDLK_w){
 			camera.forward_velocity =  vec3_mul(camera.direction, 5.0 * delta_time);
@@ -203,17 +203,17 @@ void update(void)
 	mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
 
 	// creates the rotation matrices for x, y and z axis.
-	mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
 	mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
 	mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
-
+	mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
+	
 	int num_faces = array_length(mesh.faces);
 
 	// loop all the faces of the cube
 	for (int i = 0; i < num_faces; i++)
 	{
 
-		if (i != 4) continue;
+		// if (i != 4) continue;
 
 		face_t face = mesh.faces[i];
 
@@ -241,8 +241,8 @@ void update(void)
 
 			// multiply by the rotation matrices.
 			world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
-			world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
 			world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
+			world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
 
 			// multiply by the translation matrix.
 			world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
@@ -255,17 +255,6 @@ void update(void)
 
 			transformed_vertices[j] = transformed_vertex;
 		}
-
-		/* create a polygon of the transformed vertices to start the clipping process */
-		polygon_t polygon = create_polygon_from_triangle(
-			vec3_from_vec4(transformed_vertices[0]), 
-			vec3_from_vec4(transformed_vertices[1]), 
-			vec3_from_vec4(transformed_vertices[2])
-		);
-
-		// clip the polygon and transform it to a new polygon with potentially new vertices.
-		clip_polygon(&polygon);
-
 
 		/* calculates the normal of the face */
 
@@ -301,50 +290,66 @@ void update(void)
 			}
 		}
 
-		vec4_t projected_vertex[3];
+		/* create a polygon of the transformed vertices to start the clipping process */
+		polygon_t polygon = create_polygon_from_triangle(
+			vec3_from_vec4(transformed_vertices[0]), 
+			vec3_from_vec4(transformed_vertices[1]), 
+			vec3_from_vec4(transformed_vertices[2])
+		);
 
-		// apply the projection for every vertex in this face
-		for (int j = 0; j < 3; j++)
+		// clip the polygon and transform it to a new polygon with potentially new vertices.
+		clip_polygon(&polygon);
+
+		triangle_t triangles_after_clipping[MAX_NUM_TRIANGLES];
+		int num_triangles_after_clipping = 0;
+
+		create_triangle_from_polygon(&polygon, triangles_after_clipping, &num_triangles_after_clipping);
+
+		for (int t = 0; t < num_triangles_after_clipping; t++)
 		{
-			// make the perspective projection
-			projected_vertex[j] = mat4_mult_vec4_project(projection_matrix, transformed_vertices[j]);
+			triangle_t triangle_after_clipping = triangles_after_clipping[t];
 
-			// scales the vertices into the screen.
-			projected_vertex[j].x *= (window_width / 2.0);
-			projected_vertex[j].y *= (window_height / 2.0);
+			vec4_t projected_vertex[3];
 
-			// invert the y value to account for the screen y coord.
-			projected_vertex[j].y *= -1;
-			projected_vertex[j].x *= -1;
+			// apply the projection for every vertex in this face
+			for (int j = 0; j < 3; j++)
+			{
+				// make the perspective projection
+				projected_vertex[j] = mat4_mult_vec4_project(projection_matrix, triangle_after_clipping.points[j]);
 
-			// translates the vertices to the middle of the screen.
-			projected_vertex[j].x += (window_width / 2.0);
-			projected_vertex[j].y += (window_height / 2.0);
+				// invert the y value to account for the screen y coord.
+				projected_vertex[j].y *= -1;
+				// projected_vertex[j].x *= -1;
+
+				// scales the vertices into the screen.
+				projected_vertex[j].x *= (window_width / 2.0);
+				projected_vertex[j].y *= (window_height / 2.0);
+
+				// translates the vertices to the middle of the screen.
+				projected_vertex[j].x += (window_width / 2.0);
+				projected_vertex[j].y += (window_height / 2.0);
+			}
+
+			/* calculate the light intensity on the face, based on the angle between the light direction and the face normal. */
+
+			float light_percentage = -vec3_dot(face_normal, directional_light.direction);
+
+			uint32_t face_color = light_apply_intensity(face.color, light_percentage);
+
+			triangle_t triangle_to_render = {
+				.points = {
+					{projected_vertex[0].x, projected_vertex[0].y, projected_vertex[0].z, projected_vertex[0].w},
+					{projected_vertex[1].x, projected_vertex[1].y, projected_vertex[1].z, projected_vertex[1].w},
+					{projected_vertex[2].x, projected_vertex[2].y, projected_vertex[2].z, projected_vertex[2].w}},
+				.texcoords = {{face.a_uv.u, face.a_uv.v}, {face.b_uv.u, face.b_uv.v}, {face.c_uv.u, face.c_uv.v}},
+				.color = face_color,
+				.light_percentage = light_percentage};
+
+			if (num_triangles_to_render < MAX_TRIANGLES_TO_RENDER) {
+				triangles_to_render[num_triangles_to_render] = triangle_to_render;
+				num_triangles_to_render++;
+            }
 		}
-
-
-		/* calculate the light intensity on the face, based on the angle between the light direction and the face normal. */
-
-		float light_percentage = -vec3_dot(face_normal, directional_light.direction);
-
-		uint32_t face_color = light_apply_intensity(face.color, light_percentage);
-
-		triangle_t projected_triangle = {
-			.points = {
-				{projected_vertex[0].x, projected_vertex[0].y, projected_vertex[0].z, projected_vertex[0].w},
-				{projected_vertex[1].x, projected_vertex[1].y, projected_vertex[1].z, projected_vertex[1].w},
-				{projected_vertex[2].x, projected_vertex[2].y, projected_vertex[2].z, projected_vertex[2].w}},
-			.texcoords = {
-				{face.a_uv.u, face.a_uv.v},
-				{face.b_uv.u, face.b_uv.v},
-				{face.c_uv.u, face.c_uv.v}
-			},
-			.color = face_color,
-			.light_percentage = light_percentage
-		};
-
-		triangles_to_render[num_triangles_to_render] =  projected_triangle;
-		num_triangles_to_render++;
 	}
 }
 
@@ -386,8 +391,15 @@ void render(void)
 		if (render_method == RENDER_WIRE_VERTEX || render_method == RENDER_WIRE || render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_TEXTURED_WIRE)
 		{
 			// draw the wireframe of the triangle
-			draw_triangle_wire(triangle.points[0], triangle.points[1], triangle.points[2], 0xFFFFFFFF);
+			// draw_triangle_wire(triangle.points[0], triangle.points[1], triangle.points[2], 0xFFFFFFFF);
+			  draw_triangle(
+                triangle.points[0].x, triangle.points[0].y, // vertex A
+                triangle.points[1].x, triangle.points[1].y, // vertex B
+                triangle.points[2].x, triangle.points[2].y, // vertex C
+                0xFFFFFFFF
+            );
 		}
+
 	}
 
 

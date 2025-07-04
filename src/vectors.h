@@ -39,7 +39,7 @@ vec2_t vec2_mul(vec2_t v, float factor);
 vec2_t vec2_div(vec2_t v, float factor);
 
 /** returns the resultant scalar value of a dot product operation between two vectors */
-float vec2_dot(vec3_t a, vec3_t b);
+float vec2_dot(vec2_t a, vec2_t b);
 
 /** normalize the vector passed as parameter so it has a magnitude of 1 */
 void vec2_normalize(vec2_t* v);
@@ -78,9 +78,9 @@ float vec3_dot(vec3_t a, vec3_t b);
 /** normalize the vector passed as parameter so it has a magnitude of 1 */
 void vec3_normalize(vec3_t* v);
 
-vec3_t vector_rotate_x(vec3_t vec, float angle);
-vec3_t vector_rotate_y(vec3_t vec, float angle);
-vec3_t vector_rotate_z(vec3_t vec, float angle);
+vec3_t vec3_rotate_x(vec3_t vec, float angle);
+vec3_t vec3_rotate_y(vec3_t vec, float angle);
+vec3_t vec3_rotate_z(vec3_t vec, float angle);
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Vector convertion functions

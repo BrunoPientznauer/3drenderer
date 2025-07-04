@@ -35,59 +35,50 @@ mat4_t mat4_make_translation(float tx, float ty, float tz)
 
 mat4_t mat4_make_rotation_z(float angle)
 {
-    // calculates the sin and cosine
-    float c = cos(angle);
+   float c = cos(angle);
     float s = sin(angle);
-
-    mat4_t rotation_matrix = mat4_identity();
-
-    // sets the x values
-    rotation_matrix.m[0][0] = c;
-    rotation_matrix.m[0][1] = -s;
-
-    // sets the y values
-    rotation_matrix.m[1][0] = s;
-    rotation_matrix.m[1][1] = c;
-
-    return rotation_matrix;
+    // | c -s  0  0 |
+    // | s  c  0  0 |
+    // | 0  0  1  0 |
+    // | 0  0  0  1 |
+    mat4_t m = mat4_identity();
+    m.m[0][0] = c;
+    m.m[0][1] = -s;
+    m.m[1][0] = s;
+    m.m[1][1] = c;
+    return m;
 }
 
 mat4_t mat4_make_rotation_x(float angle)
 {
-    // calculates the sin and cosine
-    float c = cos(angle);
+   float c = cos(angle);
     float s = sin(angle);
-
-    mat4_t rotation_matrix = mat4_identity();
-
-    // sets the y values
-    rotation_matrix.m[1][1] = c;
-    rotation_matrix.m[1][2] = -s;
-
-    // sets the z values
-    rotation_matrix.m[2][1] = s;
-    rotation_matrix.m[2][2] = c;
-
-    return rotation_matrix;
+    // | 1  0  0  0 |
+    // | 0  c -s  0 |
+    // | 0  s  c  0 |
+    // | 0  0  0  1 |
+    mat4_t m = mat4_identity();
+    m.m[1][1] = c;
+    m.m[1][2] = -s;
+    m.m[2][1] = s;
+    m.m[2][2] = c;
+    return m;
 }
 
 mat4_t mat4_make_rotation_y(float angle)
 {
-    // calculates the sin and cosine
-    float c = cos(angle);
+     float c = cos(angle);
     float s = sin(angle);
-
-    mat4_t rotation_matrix = mat4_identity();
-
-    // sets the x values
-    rotation_matrix.m[0][0] = c;
-    rotation_matrix.m[0][2] = s;
-
-    // sets the z values
-    rotation_matrix.m[2][0] = -s;
-    rotation_matrix.m[2][2] = c;
-
-    return rotation_matrix;
+    // |  c  0  s  0 |
+    // |  0  1  0  0 |
+    // | -s  0  c  0 |
+    // |  0  0  0  1 |
+    mat4_t m = mat4_identity();
+    m.m[0][0] = c;
+    m.m[0][2] = s;
+    m.m[2][0] = -s;
+    m.m[2][2] = c;
+    return m;
 }
 
 mat4_t mat4_make_perspective(float aspect, float fov, float zfar, float znear)
@@ -96,36 +87,35 @@ mat4_t mat4_make_perspective(float aspect, float fov, float zfar, float znear)
     // |                  0  1/tan(fov/2)              0                 0 |
     // |                  0             0     zf/(zf-zn)  (-zf*zn)/(zf-zn) |
     // |                  0             0              1                 0 |
-    mat4_t result = {{{0}}};
-
-    result.m[0][0] = (aspect * (1 / tan(fov / 2)));
-    result.m[1][1] = 1 / tan(fov / 2);
-    result.m[2][2] = zfar / (zfar - znear);
-    result.m[2][3] = (-zfar * znear) / (zfar - znear);
-    result.m[3][2] = 1.0;
-
-    return result;
+    mat4_t m = {{{ 0 }}};
+    m.m[0][0] = aspect * (1 / tan(fov / 2));
+    m.m[1][1] = 1 / tan(fov / 2);
+    m.m[2][2] = zfar / (zfar - znear);
+    m.m[2][3] = (-zfar * znear) / (zfar - znear);
+    m.m[3][2] = 1.0;
+    return m;
 }
 
 mat4_t mat4_look_at(vec3_t eye, vec3_t target, vec3_t up)
 {
-
-    vec3_t z =  vec3_sub(target, eye); // forward (z) vector
+    // Compute the forward (z), right (x), and up (y) vectors
+    vec3_t z = vec3_sub(target, eye);
     vec3_normalize(&z);
-
-    vec3_t x = vec3_cross(up, z);     // right (x) vector
+    vec3_t x = vec3_cross(up, z);
     vec3_normalize(&x);
-    
-    vec3_t y = vec3_cross(z, x);     // up (y) vector
+    vec3_t y = vec3_cross(z, x);
 
-    mat4_t result = {{
-        {x.x, x.y, x.z, -vec3_dot(x, eye)},
-        {y.x, y.y, y.z, -vec3_dot(y, eye)},
-        {z.x, z.y, z.z, -vec3_dot(z, eye)},
-        {0,   0,    0,          1        }
+    // | x.x   x.y   x.z  -dot(x,eye) |
+    // | y.x   y.y   y.z  -dot(y,eye) |
+    // | z.x   z.y   z.z  -dot(z,eye) |
+    // |   0     0     0            1 |
+    mat4_t view_matrix = {{
+        { x.x, x.y, x.z, -vec3_dot(x, eye) },
+        { y.x, y.y, y.z, -vec3_dot(y, eye) },
+        { z.x, z.y, z.z, -vec3_dot(z, eye) },
+        {   0,   0,   0,                 1 }
     }};
-
-    return result;
+    return view_matrix;
 }
 
 vec4_t mat4_mul_vec4(mat4_t m, vec4_t v)

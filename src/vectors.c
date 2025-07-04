@@ -13,7 +13,7 @@ vec2_t vec2_new(float x, float y)
 
 float vec2_length(vec2_t v)
 {
-    return sqrt((v.x * v.x) + (v.y * v.y));
+    return sqrt(v.x * v.x + v.y * v.y);
 }
 
 vec2_t vec2_add(vec2_t a, vec2_t b)
@@ -55,7 +55,7 @@ vec2_t vec2_div(vec2_t v, float factor)
 
     return result;}
 
-float vec2_dot(vec3_t a, vec3_t b)
+float vec2_dot(vec2_t a, vec2_t b)
 {
     return (a.x * b.x) + (a.y * b.y);
 }
@@ -63,9 +63,9 @@ float vec2_dot(vec3_t a, vec3_t b)
 
 void vec2_normalize(vec2_t* v)
 {
-    float magnitude = vec2_length(*v);
-    v->x /= magnitude;
-    v->y /= magnitude;
+    float length = sqrt(v->x * v->x + v->y * v->y);
+    v->x /= length;
+    v->y /= length;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ vec3_t vec3_add(vec3_t a, vec3_t b)
 {
     vec3_t result = {
         .x = a.x + b.x,
-        .y = a.y + a.y,
+        .y = a.y + b.y,
         .z = a.z + b.z
     };
 
@@ -148,13 +148,13 @@ float vec3_dot(vec3_t a, vec3_t b) {
 
 void vec3_normalize(vec3_t* v)
 {
-    float magnitude = vec3_length(*v);
-    v->x /= magnitude;
-    v->y /= magnitude;
-    v->z /= magnitude;
+    float length = sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
+    v->x /= length;
+    v->y /= length;
+    v->z /= length;
 }
 
-vec3_t vector_rotate_x(vec3_t vec, float angle)
+vec3_t vec3_rotate_x(vec3_t vec, float angle)
 {
     vec3_t rotated_vector = {
         .x = vec.x,
@@ -164,17 +164,17 @@ vec3_t vector_rotate_x(vec3_t vec, float angle)
     return rotated_vector;
 }
 
-vec3_t vector_rotate_y(vec3_t vec, float angle)
+vec3_t vec3_rotate_y(vec3_t vec, float angle)
 {
     vec3_t rotated_vector = {
-        .x = vec.x * cos(angle) - vec.z * sin(angle),
+        .x = vec.x * cos(angle) + vec.z * sin(angle),
         .y = vec.y,
-        .z = vec.x * sin(angle) + vec.z * cos(angle)};
+        .z = -vec.x * sin(angle) + vec.z * cos(angle)};
 
     return rotated_vector;
 }
 
-vec3_t vector_rotate_z(vec3_t vec, float angle)
+vec3_t vec3_rotate_z(vec3_t vec, float angle)
 {
     vec3_t rotated_vector = {
         .x = vec.x * cos(angle) - vec.y * sin(angle),
@@ -188,21 +188,17 @@ vec3_t vector_rotate_z(vec3_t vec, float angle)
 // Vector Convertion Functions
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-vec4_t vec4_from_vec3(vec3_t vec3)
-{
-    vec4_t v = {.x = vec3.x, .y = vec3.y, .z = vec3.z, .w = 1.0};
-    return v;
+vec4_t vec4_from_vec3(vec3_t v) {
+    vec4_t result = { v.x, v.y, v.z, 1.0 };
+    return result;
 }
 
-vec3_t vec3_from_vec4(vec4_t vec4)
-{
-    vec3_t v = {.x = vec4.x, .y = vec4.y, .z = vec4.z};
-    return v;
+vec3_t vec3_from_vec4(vec4_t v) {
+    vec3_t result = { v.x, v.y, v.z };
+    return result;
 }
 
-
-vec2_t vec2_from_vec4(vec4_t v)
-{
-    vec2_t result = {.x = v.x, .y =  v.y};
+vec2_t vec2_from_vec4(vec4_t v) {
+    vec2_t result = { v.x, v.y };
     return result;
 }

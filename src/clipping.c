@@ -3,56 +3,67 @@
 
 #define NUM_OF_PLANES 6
 
-plane_t frustrum_planes[NUM_OF_PLANES];
+plane_t frustum_planes[NUM_OF_PLANES];
 
 void initialize_frustrum_planes(float fov, float z_near, float z_far)
 {
     float cos_half_fov = cos(fov / 2);
-    float sin_half_fov = sin(fov / 2);
+	float sin_half_fov = sin(fov / 2);
 
-    frustrum_planes[LEFT_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
-    frustrum_planes[LEFT_PLANE_FRUSTRUM].normal = vec3_new(cos_half_fov, 0, sin_half_fov);
+	frustum_planes[LEFT_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
+	frustum_planes[LEFT_PLANE_FRUSTRUM].normal.x = cos_half_fov;
+	frustum_planes[LEFT_PLANE_FRUSTRUM].normal.y = 0;
+	frustum_planes[LEFT_PLANE_FRUSTRUM].normal.z = sin_half_fov;
 
-    frustrum_planes[RIGHT_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
-    frustrum_planes[RIGHT_PLANE_FRUSTRUM].normal = vec3_new(-cos_half_fov, 0, sin_half_fov);
+	frustum_planes[RIGHT_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
+	frustum_planes[RIGHT_PLANE_FRUSTRUM].normal.x = -cos_half_fov;
+	frustum_planes[RIGHT_PLANE_FRUSTRUM].normal.y = 0;
+	frustum_planes[RIGHT_PLANE_FRUSTRUM].normal.z = sin_half_fov;
 
-    frustrum_planes[TOP_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
-    frustrum_planes[TOP_PLANE_FRUSTRUM].normal = vec3_new(0, -cos_half_fov, sin_half_fov);
+	frustum_planes[TOP_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
+	frustum_planes[TOP_PLANE_FRUSTRUM].normal.x = 0;
+	frustum_planes[TOP_PLANE_FRUSTRUM].normal.y = -cos_half_fov;
+	frustum_planes[TOP_PLANE_FRUSTRUM].normal.z = sin_half_fov;
 
-    frustrum_planes[BOTTOM_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
-    frustrum_planes[BOTTOM_PLANE_FRUSTRUM].normal = vec3_new(0, cos_half_fov, sin_half_fov);
+	frustum_planes[BOTTOM_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
+	frustum_planes[BOTTOM_PLANE_FRUSTRUM].normal.x = 0;
+	frustum_planes[BOTTOM_PLANE_FRUSTRUM].normal.y = cos_half_fov;
+	frustum_planes[BOTTOM_PLANE_FRUSTRUM].normal.z = sin_half_fov;
 
-    frustrum_planes[NEAR_PLANE_FRUSTRUM].point = vec3_new(0, 0, z_near);
-    frustrum_planes[NEAR_PLANE_FRUSTRUM].normal = vec3_new(0, 0, 1);
+	frustum_planes[NEAR_PLANE_FRUSTRUM].point = vec3_new(0, 0, z_near);
+	frustum_planes[NEAR_PLANE_FRUSTRUM].normal.x = 0;
+	frustum_planes[NEAR_PLANE_FRUSTRUM].normal.y = 0;
+	frustum_planes[NEAR_PLANE_FRUSTRUM].normal.z = 1;
 
-    frustrum_planes[FAR_PLANE_FRUSTRUM].point = vec3_new(0, 0, z_far);
-    frustrum_planes[FAR_PLANE_FRUSTRUM].normal = vec3_new(0, 0, -1);
+	frustum_planes[FAR_PLANE_FRUSTRUM].point = vec3_new(0, 0, z_far);
+	frustum_planes[FAR_PLANE_FRUSTRUM].normal.x = 0;
+	frustum_planes[FAR_PLANE_FRUSTRUM].normal.y = 0;
+	frustum_planes[FAR_PLANE_FRUSTRUM].normal.z = -1;
 }
 
 polygon_t create_polygon_from_triangle(vec3_t v0, vec3_t v1, vec3_t v2)
 {
-    polygon_t result = {
-        .vertices = {v0, v1, v2},
+     polygon_t polygon = {
+        .vertices = { v0, v1, v2 },
         .num_of_vertices = 3
     };
-
-    return result;
+    return polygon;
 }
 
 void clip_polygon(polygon_t *polygon)
 {
     clip_polygon_against_plane(polygon, LEFT_PLANE_FRUSTRUM);
     clip_polygon_against_plane(polygon, RIGHT_PLANE_FRUSTRUM);
-    clip_polygon_against_plane(polygon, BOTTOM_PLANE_FRUSTRUM);
     clip_polygon_against_plane(polygon, TOP_PLANE_FRUSTRUM);
+    clip_polygon_against_plane(polygon, BOTTOM_PLANE_FRUSTRUM);
     clip_polygon_against_plane(polygon, NEAR_PLANE_FRUSTRUM);
     clip_polygon_against_plane(polygon, FAR_PLANE_FRUSTRUM);
 }
 
 void clip_polygon_against_plane(polygon_t *polygon, int frustrum_plane)
 {
-    vec3_t plane_point = frustrum_planes[frustrum_plane].point;
-    vec3_t plane_normal = frustrum_planes[frustrum_plane].normal;
+    vec3_t plane_point = frustum_planes[frustrum_plane].point;
+    vec3_t plane_normal = frustum_planes[frustrum_plane].normal;
 
     // initializes the array of vertices inside the frustrum plane.
     vec3_t inside_vertices[MAX_NUM_POLY_VERTICES];
@@ -98,4 +109,19 @@ void clip_polygon_against_plane(polygon_t *polygon, int frustrum_plane)
     }
 
     polygon->num_of_vertices = num_inside_vertices;
+}
+
+void create_triangle_from_polygon(polygon_t *polygon, triangle_t triangles[], int *num_triangles)
+{
+    for(int i = 0; i < polygon->num_of_vertices - 2; i++){
+        int index0 = 0;
+        int index1 = i + 1;
+        int index2 = i + 2;
+
+        triangles[i].points[0] = vec4_from_vec3(polygon->vertices[index0]);
+        triangles[i].points[1] = vec4_from_vec3(polygon->vertices[index1]);
+        triangles[i].points[2] = vec4_from_vec3(polygon->vertices[index2]);
+    }
+
+    *num_triangles = polygon->num_of_vertices - 2;
 }

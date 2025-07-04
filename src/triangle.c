@@ -306,6 +306,12 @@ void draw_triangle_wire(vec4_t v1, vec4_t v2, vec4_t v3, uint32_t color)
     draw_wire(v1.x, v1.y, v1.z, v1.w, v2.x, v2.y, v2.z, v2.w, v3.x, v3.y, v3.z, v3.w, color);
 }
 
+void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+    draw_line(x0, y0, x1, y1, color);
+    draw_line(x1, y1, x2, y2, color);
+    draw_line(x2, y2, x0, y0, color);
+}
+
 void draw_wire(int x0, int y0, float z0, float w0, int x1, int y1, float z1, float w1, int x2, int y2, float z2, float w2,  uint32_t color)
 {
     // We need to sort the vertices by y-coordinate ascending (y0 < y1 < y2)
