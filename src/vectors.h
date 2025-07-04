@@ -51,6 +51,9 @@ void vec2_normalize(vec2_t* v);
 /** creates a new vec3 */
 vec3_t vec3_new(float x, float y, float z);
 
+/** clones a given 3 dimensional vector */
+vec3_t vec3_clone(vec3_t* v);
+
 /**  returns the maginute of a 3 dimensional vector */
 float vec3_length(vec3_t v);  
 

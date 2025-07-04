@@ -90,9 +90,9 @@ void setup(void)
 	// mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
 
 	// load_cube_mesh_data();
-	load_obj_mesh_data("./assets/f22.obj");
+	load_obj_mesh_data("./assets/cube.obj");
 
-	load_png_texture_data("./assets/f22.png");
+	load_png_texture_data("./assets/cube.png");
 }
 
 void proccess_input(void)
@@ -212,6 +212,9 @@ void update(void)
 	// loop all the faces of the cube
 	for (int i = 0; i < num_faces; i++)
 	{
+
+		if (i != 4) continue;
+
 		face_t face = mesh.faces[i];
 
 		vec3_t face_vertices[3];

@@ -51,4 +51,51 @@ void clip_polygon(polygon_t *polygon)
 
 void clip_polygon_against_plane(polygon_t *polygon, int frustrum_plane)
 {
+    vec3_t plane_point = frustrum_planes[frustrum_plane].point;
+    vec3_t plane_normal = frustrum_planes[frustrum_plane].normal;
+
+    // initializes the array of vertices inside the frustrum plane.
+    vec3_t inside_vertices[MAX_NUM_POLY_VERTICES];
+    int num_inside_vertices = 0;
+
+    // initializes the current and previous vertices with the first and last vertices on the polygon.
+    vec3_t* current_vertex = &polygon->vertices[0];
+    vec3_t* previous_vertex = &polygon->vertices[polygon->num_of_vertices - 1];
+
+    float current_dot = 0;
+    float previous_dot = vec3_dot(vec3_sub(*previous_vertex, plane_point), plane_normal);
+
+    while (current_vertex != &polygon->vertices[polygon->num_of_vertices])
+    {
+        current_dot = vec3_dot(vec3_sub(*current_vertex, plane_point), plane_normal);
+
+        if(current_dot * previous_dot < 0){
+            // finds the interpolation factor t
+            float factor = previous_dot / (previous_dot - current_dot);
+
+            // finds the intersection point I = Q1 + T(Q2 - Q1)
+            vec3_t interscetion_point = vec3_clone(current_vertex);              // I =        Qc
+            interscetion_point = vec3_sub(interscetion_point, *previous_vertex); // I =       (Qc - Qp)
+            interscetion_point = vec3_mul(interscetion_point, factor);           // I =      T(Qc - Qp)
+            interscetion_point = vec3_add(interscetion_point, *previous_vertex ); // I = Qp + T(Qc - Qp)
+
+            inside_vertices[num_inside_vertices] = vec3_clone(&interscetion_point);
+            num_inside_vertices++;
+        }
+
+        if(current_dot > 0){
+            inside_vertices[num_inside_vertices] = vec3_clone(current_vertex);
+            num_inside_vertices++;
+        }
+        
+        previous_dot = current_dot;
+        previous_vertex = current_vertex;
+        current_vertex++;
+    }
+    
+    for(int i = 0; i < num_inside_vertices; i++){
+        polygon->vertices[i] = vec3_clone(&inside_vertices[i]);
+    }
+
+    polygon->num_of_vertices = num_inside_vertices;
 }
