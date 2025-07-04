@@ -73,15 +73,21 @@ void setup(void)
 		window_height);
 		
 
+	float aspect_y = (float)window_height / (float)window_width;
+	float aspect_x = (float)window_width / (float)window_height;
+
 	// initialize the perspective matrix to multiply by the vertices during projection.
-	float fov = PI / 3.0; // the same as 180/3, or 60 degrees
-	float aspect = (float)window_height / (float)window_width;
+	float fov_y = PI / 3.0; // the same as 180/3, or 60 degrees
+
+	// calculates the fov of the x axis https://courses.pikuma.com/courses/take/learn-computer-graphics-programming/lessons/15961854-horizontal-vertical-fov-angles
+	float fov_x = atan(tan(fov_y / 2) * aspect_x) * 2.0; 
+
 	float znear = 1.0;
 	float zfar = 20.0;
-	projection_matrix = mat4_make_perspective(aspect, fov, zfar, znear);
+	projection_matrix = mat4_make_perspective(aspect_y, fov_y, zfar, znear);
 
 	// initialize the frustrum planes with a field of view a near and a far
-	initialize_frustrum_planes(fov, znear, zfar);
+	initialize_frustrum_planes(fov_x, fov_y, znear, zfar);
 
 	cull_method = CULL_BACKFACE;
 	render_method = RENDER_FILL_TRIANGLE;

@@ -5,30 +5,33 @@
 
 plane_t frustum_planes[NUM_OF_PLANES];
 
-void initialize_frustrum_planes(float fov, float z_near, float z_far)
+void initialize_frustrum_planes(float fov_x, float fov_y, float z_near, float z_far)
 {
-    float cos_half_fov = cos(fov / 2);
-	float sin_half_fov = sin(fov / 2);
+    float cos_half_fov_y = cos(fov_y / 2);
+	float sin_half_fov_y = sin(fov_y / 2);
+
+    float cos_half_fov_x = cos(fov_x / 2);
+	float sin_half_fov_x = sin(fov_x / 2);
 
 	frustum_planes[LEFT_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
-	frustum_planes[LEFT_PLANE_FRUSTRUM].normal.x = cos_half_fov;
+	frustum_planes[LEFT_PLANE_FRUSTRUM].normal.x = cos_half_fov_x;
 	frustum_planes[LEFT_PLANE_FRUSTRUM].normal.y = 0;
-	frustum_planes[LEFT_PLANE_FRUSTRUM].normal.z = sin_half_fov;
+	frustum_planes[LEFT_PLANE_FRUSTRUM].normal.z = sin_half_fov_x;
 
 	frustum_planes[RIGHT_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
-	frustum_planes[RIGHT_PLANE_FRUSTRUM].normal.x = -cos_half_fov;
+	frustum_planes[RIGHT_PLANE_FRUSTRUM].normal.x = -cos_half_fov_x;
 	frustum_planes[RIGHT_PLANE_FRUSTRUM].normal.y = 0;
-	frustum_planes[RIGHT_PLANE_FRUSTRUM].normal.z = sin_half_fov;
+	frustum_planes[RIGHT_PLANE_FRUSTRUM].normal.z = sin_half_fov_x;
 
 	frustum_planes[TOP_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
 	frustum_planes[TOP_PLANE_FRUSTRUM].normal.x = 0;
-	frustum_planes[TOP_PLANE_FRUSTRUM].normal.y = -cos_half_fov;
-	frustum_planes[TOP_PLANE_FRUSTRUM].normal.z = sin_half_fov;
+	frustum_planes[TOP_PLANE_FRUSTRUM].normal.y = -cos_half_fov_y;
+	frustum_planes[TOP_PLANE_FRUSTRUM].normal.z = sin_half_fov_y;
 
 	frustum_planes[BOTTOM_PLANE_FRUSTRUM].point = vec3_new(0, 0, 0);
 	frustum_planes[BOTTOM_PLANE_FRUSTRUM].normal.x = 0;
-	frustum_planes[BOTTOM_PLANE_FRUSTRUM].normal.y = cos_half_fov;
-	frustum_planes[BOTTOM_PLANE_FRUSTRUM].normal.z = sin_half_fov;
+	frustum_planes[BOTTOM_PLANE_FRUSTRUM].normal.y = cos_half_fov_y;
+	frustum_planes[BOTTOM_PLANE_FRUSTRUM].normal.z = sin_half_fov_y;
 
 	frustum_planes[NEAR_PLANE_FRUSTRUM].point = vec3_new(0, 0, z_near);
 	frustum_planes[NEAR_PLANE_FRUSTRUM].normal.x = 0;
