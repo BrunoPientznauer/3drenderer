@@ -96,9 +96,9 @@ void setup(void)
 	// mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
 
 	// load_cube_mesh_data();
-	load_obj_mesh_data("./assets/cube.obj");
+	load_obj_mesh_data("./assets/f22.obj");
 
-	load_png_texture_data("./assets/cube.png");
+	load_png_texture_data("./assets/f22.png");
 }
 
 void proccess_input(void)
@@ -300,7 +300,10 @@ void update(void)
 		polygon_t polygon = create_polygon_from_triangle(
 			vec3_from_vec4(transformed_vertices[0]), 
 			vec3_from_vec4(transformed_vertices[1]), 
-			vec3_from_vec4(transformed_vertices[2])
+			vec3_from_vec4(transformed_vertices[2]),
+			face.a_uv,
+			face.b_uv,
+			face.c_uv
 		);
 
 		// clip the polygon and transform it to a new polygon with potentially new vertices.
@@ -346,10 +349,16 @@ void update(void)
 				.points = {
 					{projected_vertex[0].x, projected_vertex[0].y, projected_vertex[0].z, projected_vertex[0].w},
 					{projected_vertex[1].x, projected_vertex[1].y, projected_vertex[1].z, projected_vertex[1].w},
-					{projected_vertex[2].x, projected_vertex[2].y, projected_vertex[2].z, projected_vertex[2].w}},
-				.texcoords = {{face.a_uv.u, face.a_uv.v}, {face.b_uv.u, face.b_uv.v}, {face.c_uv.u, face.c_uv.v}},
+					{projected_vertex[2].x, projected_vertex[2].y, projected_vertex[2].z, projected_vertex[2].w}
+				},
+				.texcoords = {
+					{triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v}, 
+					{triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v}, 
+					{triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v}
+				},
 				.color = face_color,
-				.light_percentage = light_percentage};
+				.light_percentage = 1.0
+			};
 
 			if (num_triangles_to_render < MAX_TRIANGLES_TO_RENDER) {
 				triangles_to_render[num_triangles_to_render] = triangle_to_render;
