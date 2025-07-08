@@ -100,19 +100,17 @@ void draw_triangle_pixel(int x, int y, uint32_t color, vec4_t point_a, vec4_t po
     // Find the interpolated value of the reciprocal of w to account for the perspective.
     float interpolated_reciprocal_w  = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
 
-    // calculates the index of the actual pixel on the z buffer.
-    int z_buffer_index = window_width * y + x;
 
     // adjust so the pixels that are closer to the camera have a smaller value then those who are further away.
     interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
  
     // only draw the pixel if the actual z value is less than the previous value on the correspondent index on the z buffer.
-    if(interpolated_reciprocal_w <= z_buffer[z_buffer_index] ){
+    if(interpolated_reciprocal_w <= get_zbuffer_at(x, y)){
         // draw the pixel on the x and y axes with the value on the texture.
         draw_pixel(x, y, color);
  
         // updates the z buffer with the reciprocal value of z.
-        z_buffer[z_buffer_index] = interpolated_reciprocal_w;
+        set_zbuffer_at(x, y, interpolated_reciprocal_w);
      }
 }
 
@@ -155,14 +153,11 @@ void draw_texel(int x, int y,
 
     int texIndex = ((texture_width * tex_y) + tex_x);
 
-    // calculates the index of the actual pixel on the z buffer.
-    int z_buffer_index = window_width * y + x;
-
     // adjust so the pixels that are closer to the camera have a smaller value then those who are further away.
     interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
 
     // only draw the pixel if the actual z value is less than the previous value on the correspondent index on the z buffer.
-    if(interpolated_reciprocal_w < z_buffer[z_buffer_index] ){
+    if(interpolated_reciprocal_w < get_zbuffer_at(x, y) ){
 
         uint32_t final_color = light_apply_intensity(texture[texIndex], light_percentage);
 
@@ -170,7 +165,7 @@ void draw_texel(int x, int y,
         draw_pixel(x, y, final_color);
 
         // updates the z buffer with the reciprocal value of z.
-        z_buffer[z_buffer_index] = interpolated_reciprocal_w;
+       set_zbuffer_at(x, y, interpolated_reciprocal_w);
     }
 
 }
