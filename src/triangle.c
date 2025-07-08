@@ -147,26 +147,26 @@ void draw_texel(int x, int y,
     interpolated_u /= interpolated_reciprocal_w;
     interpolated_v /= interpolated_reciprocal_w;
 
-    // Map the interpolated values to the full texture width and height.
-    int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
-    int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
+    // // Map the interpolated values to the full texture width and height.
+    // int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
+    // int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
-    int texIndex = ((texture_width * tex_y) + tex_x);
+    // int texIndex = ((texture_width * tex_y) + tex_x);
 
-    // adjust so the pixels that are closer to the camera have a smaller value then those who are further away.
-    interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
+    // // adjust so the pixels that are closer to the camera have a smaller value then those who are further away.
+    // interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
 
-    // only draw the pixel if the actual z value is less than the previous value on the correspondent index on the z buffer.
-    if(interpolated_reciprocal_w < get_zbuffer_at(x, y) ){
+    // // only draw the pixel if the actual z value is less than the previous value on the correspondent index on the z buffer.
+    // if(interpolated_reciprocal_w < get_zbuffer_at(x, y) ){
 
-        uint32_t final_color = light_apply_intensity(texture[texIndex], light_percentage);
+    //     uint32_t final_color = light_apply_intensity(texture[texIndex], light_percentage);
 
-        // draw the pixel on the x and y axes with the value on the texture.
-        draw_pixel(x, y, final_color);
+    //     // draw the pixel on the x and y axes with the value on the texture.
+    //     draw_pixel(x, y, final_color);
 
-        // updates the z buffer with the reciprocal value of z.
-       set_zbuffer_at(x, y, interpolated_reciprocal_w);
-    }
+    //     // updates the z buffer with the reciprocal value of z.
+    //    set_zbuffer_at(x, y, interpolated_reciprocal_w);
+    // }
 
 }
 
