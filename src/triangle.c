@@ -115,7 +115,7 @@ void draw_triangle_pixel(int x, int y, uint32_t color, vec4_t point_a, vec4_t po
 }
 
 void draw_texel(int x, int y, 
-    uint32_t *texture, float light_percentage, vec4_t point_a, vec4_t point_b, vec4_t point_c, 
+    upng_t* texture, float light_percentage, vec4_t point_a, vec4_t point_b, vec4_t point_c, 
     tex2_t a_uv, tex2_t b_uv, tex2_t c_uv)
 {
     vec2_t p = {x, y};
@@ -147,26 +147,29 @@ void draw_texel(int x, int y,
     interpolated_u /= interpolated_reciprocal_w;
     interpolated_v /= interpolated_reciprocal_w;
 
-    // // Map the interpolated values to the full texture width and height.
-    // int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
-    // int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
+    // Gets the dimensions of the texture.
+    int texture_width = upng_get_width(texture);
+    int texture_height = upng_get_height(texture);
 
-    // int texIndex = ((texture_width * tex_y) + tex_x);
+    // Map the interpolated values to the full texture width and height.
+    int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
+    int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
-    // // adjust so the pixels that are closer to the camera have a smaller value then those who are further away.
-    // interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
+    // adjust so the pixels that are closer to the camera have a smaller value then those who are further away.
+    interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
 
-    // // only draw the pixel if the actual z value is less than the previous value on the correspondent index on the z buffer.
-    // if(interpolated_reciprocal_w < get_zbuffer_at(x, y) ){
+    // only draw the pixel if the actual z value is less than the previous value on the correspondent index on the z buffer.
+    if(interpolated_reciprocal_w < get_zbuffer_at(x, y) ){
+        int texIndex = ((texture_width * tex_y) + tex_x);
+        uint32_t* texture_buffer = (uint32_t*)upng_get_buffer(texture);
+        uint32_t final_color = light_apply_intensity(texture_buffer[texIndex], light_percentage);
 
-    //     uint32_t final_color = light_apply_intensity(texture[texIndex], light_percentage);
+        // draw the pixel on the x and y axes with the value on the texture.
+        draw_pixel(x, y, final_color);
 
-    //     // draw the pixel on the x and y axes with the value on the texture.
-    //     draw_pixel(x, y, final_color);
-
-    //     // updates the z buffer with the reciprocal value of z.
-    //    set_zbuffer_at(x, y, interpolated_reciprocal_w);
-    // }
+        // updates the z buffer with the reciprocal value of z.
+       set_zbuffer_at(x, y, interpolated_reciprocal_w);
+    }
 
 }
 
@@ -174,7 +177,7 @@ void  draw_textured_triangle(
     int x0, int y0, float z0, float w0, float u0, float v0,
     int x1, int y1, float z1, float w1, float u1, float v1,
     int x2, int y2, float z2, float w2, float u2, float v2,
-    uint32_t* texture, float light_percentage
+    upng_t* texture, float light_percentage
 ){
   // We need to sort the vertices by y-coordinate ascending (y0 < y1 < y2)
     if (y0 > y1) {
@@ -392,4 +395,25 @@ void draw_wire(int x0, int y0, float z0, float w0, int x1, int y1, float z1, flo
             draw_triangle_pixel(x_end, y, color, point_a, point_b, point_c);
         }
     }
+}
+
+vec3_t calculate_triangle_normal(vec4_t vertices[3])
+{
+    vec3_t vector_a = vec3_from_vec4(vertices[0]);
+    vec3_t vector_b = vec3_from_vec4(vertices[1]);
+    vec3_t vector_c = vec3_from_vec4(vertices[2]);
+
+    // gets the vectors of the subtractions B-A and C-A
+    vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+    vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+    vec3_normalize(&vector_ab);
+    vec3_normalize(&vector_ac);
+
+    // gets the normal vector of the face by performing the cross product of the vectors between the vertices B and C to A.
+    vec3_t normal = vec3_cross(vector_ab, vector_ac);
+
+    // normalize the face normal vector
+    vec3_normalize(&normal);
+
+    return normal;
 }
