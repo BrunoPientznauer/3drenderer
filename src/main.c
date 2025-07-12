@@ -288,7 +288,6 @@ void proccess_graphics_pipeline_stages(mesh_t *mesh)
 
 				// invert the y value to account for the screen y coord.
 				projected_vertex[j].y *= -1;
-				// projected_vertex[j].x *= -1;
 
 				// scales the vertices into the screen.
 				projected_vertex[j].x *= (get_window_width() / 2.0);
